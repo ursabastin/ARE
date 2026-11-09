@@ -93,10 +93,14 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 4px;
 }
 
-.brand-logo-emoji {
-  font-size: 22px;
+.brand-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 6px;
 }
 
 .brand-title-row {

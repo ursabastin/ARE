@@ -68,8 +68,11 @@ body {
   gap: 8px;
 }
 
-.brand-emoji {
-  font-size: 22px;
+.brand-logo-img {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  object-fit: contain;
 }
 
 .brand-title {
