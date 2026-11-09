@@ -1,0 +1,510 @@
+/* ==========================================================================
+   ARE Interception Screen — Warm Cozy Sanctuary Design System
+   Style: Mindful, Gentle, Grounding, Warm Linen & Forest Sage
+   ========================================================================== */
+
+:root {
+  /* Warm Linen & Paper Palette */
+  --bg-canvas: #faf7f2;
+  --bg-card: #ffffff;
+  --bg-card-subtle: #f6f2ea;
+  --border-warm: #e8e0d4;
+  --border-warm-strong: #d2c7b7;
+
+  /* Ink & Typography */
+  --text-primary: #292524;
+  --text-secondary: #57534e;
+  --text-muted: #857e75;
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: 'SF Mono', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+
+  /* Cozy Accents */
+  --sage-green: #3f6212;
+  --sage-light: #f0fdf4;
+  --sage-border: #bbf7d0;
+
+  --amber-honey: #b45309;
+  --amber-light: #fffbeb;
+  --amber-border: #fde68a;
+
+  --terracotta: #be123c;
+  --terracotta-light: #fff1f2;
+  --terracotta-border: #fecdd3;
+
+  --blue-soft: #0369a1;
+  --blue-light: #f0f9ff;
+  --blue-border: #bae6fd;
+
+  /* Elevation */
+  --shadow-cozy: 0 4px 20px rgba(41, 37, 36, 0.05), 0 1px 3px rgba(41, 37, 36, 0.03);
+  --shadow-hover: 0 8px 30px rgba(41, 37, 36, 0.08), 0 2px 6px rgba(41, 37, 36, 0.04);
+
+  --radius-card: 20px;
+  --radius-pod: 14px;
+  --radius-btn: 10px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-canvas);
+  background-image: radial-gradient(at 0% 0%, rgba(217, 119, 6, 0.04) 0px, transparent 50%),
+                    radial-gradient(at 100% 100%, rgba(63, 98, 18, 0.04) 0px, transparent 50%);
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  line-height: 1.6;
+}
+
+.cozy-shell {
+  width: 100%;
+  max-width: 680px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Top bar */
+.cozy-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+}
+
+.brand-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.brand-icon {
+  font-size: 16px;
+}
+
+.shield-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--amber-light);
+  border: 1px solid var(--amber-border);
+  color: var(--amber-honey);
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--amber-honey);
+  animation: gentlePulse 2.5s infinite;
+}
+
+@keyframes gentlePulse {
+  0%, 100% { opacity: 0.9; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+/* Cozy Card */
+.cozy-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-warm);
+  border-radius: var(--radius-card);
+  padding: 36px 32px;
+  box-shadow: var(--shadow-cozy);
+  text-align: center;
+}
+
+.hero-icon-wrap {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 16px;
+  background: var(--bg-card-subtle);
+  border: 1px solid var(--border-warm);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-icon-wrap.gold {
+  background: var(--amber-light);
+  border-color: var(--amber-border);
+}
+
+.hero-emoji {
+  font-size: 28px;
+}
+
+.target-chip {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--bg-card-subtle);
+  border: 1px solid var(--border-warm);
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+
+.milestone-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--amber-light);
+  color: var(--amber-honey);
+  border: 1px solid var(--amber-border);
+  margin-bottom: 8px;
+}
+
+.main-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  letter-spacing: -0.02em;
+}
+
+.main-subtitle {
+  font-size: 15px;
+  color: var(--text-secondary);
+  max-width: 520px;
+  margin: 0 auto 24px;
+}
+
+/* 3-Day Pledge Pod */
+.pledge-pod {
+  background: var(--amber-light);
+  border: 1px solid var(--amber-border);
+  border-radius: var(--radius-pod);
+  padding: 20px;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.pod-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.pod-tag {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--amber-honey);
+}
+
+.pod-badge {
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba(180, 83, 9, 0.12);
+  color: var(--amber-honey);
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.countdown-large {
+  font-family: var(--font-mono);
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.pod-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* Grounding Quote Pod */
+.quote-pod {
+  background: var(--bg-card-subtle);
+  border: 1px solid var(--border-warm);
+  border-radius: var(--radius-pod);
+  padding: 18px 20px;
+  margin-bottom: 28px;
+}
+
+.quote-text {
+  font-style: italic;
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* Action Buttons */
+.action-row {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.cozy-btn {
+  font-family: var(--font-family);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 12px 22px;
+  border-radius: var(--radius-btn);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.btn-primary {
+  background: var(--sage-green);
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background: #365314;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(63, 98, 18, 0.2);
+}
+
+.btn-secondary {
+  background: var(--bg-card);
+  border-color: var(--border-warm);
+  color: var(--text-secondary);
+}
+
+.btn-secondary:hover {
+  background: var(--bg-card-subtle);
+  border-color: var(--border-warm-strong);
+}
+
+.btn-success {
+  background: var(--sage-green);
+  color: #ffffff;
+}
+
+.btn-success:hover {
+  background: #365314;
+}
+
+.btn-outline {
+  background: var(--bg-card);
+  border-color: var(--border-warm-strong);
+  color: var(--text-primary);
+}
+
+.btn-outline:hover {
+  background: var(--bg-card-subtle);
+}
+
+.btn-lg {
+  padding: 16px 28px;
+  font-size: 15px;
+  width: 100%;
+}
+
+/* Review Stage & Wizard */
+.decision-prompt-box {
+  background: var(--bg-card-subtle);
+  border: 1px solid var(--border-warm);
+  border-radius: var(--radius-pod);
+  padding: 28px;
+  margin-top: 16px;
+}
+
+.prompt-question {
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.prompt-hint {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+}
+
+.decision-buttons-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* 7-Step Wizard */
+.wizard-header {
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.wizard-stepper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.wizard-step-tag {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--amber-honey);
+}
+
+.wizard-counter {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.progress-bar-track {
+  width: 100%;
+  height: 6px;
+  background: var(--bg-card-subtle);
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--border-warm);
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--sage-green);
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.wizard-question-pane {
+  display: none;
+  text-align: left;
+}
+
+.wizard-question-pane.active {
+  display: block;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.q-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.q-sub {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 18px;
+}
+
+.cozy-options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.cozy-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 16px;
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-warm);
+  border-radius: var(--radius-pod);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.cozy-option:hover {
+  background: var(--bg-card-subtle);
+  border-color: var(--border-warm-strong);
+}
+
+.cozy-option input[type="radio"] {
+  margin-top: 4px;
+  accent-color: var(--sage-green);
+  cursor: pointer;
+  transform: scale(1.15);
+}
+
+.cozy-option:has(input[type="radio"]:checked) {
+  border-color: var(--sage-green);
+  background: var(--sage-light);
+}
+
+.final-option.opt-success:has(input[type="radio"]:checked) {
+  border-color: var(--sage-green);
+  background: var(--sage-light);
+}
+
+.final-option.opt-amber:has(input[type="radio"]:checked) {
+  border-color: var(--amber-honey);
+  background: var(--amber-light);
+}
+
+.final-option.opt-danger:has(input[type="radio"]:checked) {
+  border-color: var(--terracotta);
+  background: var(--terracotta-light);
+}
+
+.opt-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.opt-content strong {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.opt-content span {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.wizard-nav-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-warm);
+}
+
+@media (max-width: 600px) {
+  .cozy-card {
+    padding: 24px 20px;
+  }
+  .main-title {
+    font-size: 20px;
+  }
+  .countdown-large {
+    font-size: 20px;
+  }
+}

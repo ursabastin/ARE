@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ARE | Autonomous Restrictor Engine Studio</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="bento-container">
+
+    <!-- Top Header Bar -->
+    <header class="bento-header">
+      <div class="brand-group">
+        <div class="logo-box">
+          <span class="brand-logo-emoji">🌱</span>
+        </div>
+        <div>
+          <div class="brand-title-row">
+            <h1 class="brand-name">ARE</h1>
+            <span class="badge-accent">STUDIO v2.0</span>
+          </div>
+          <p class="brand-tagline">Autonomous Restrictor Engine • Cozy Cognitive Shield & 3-Day Commitment Protocol</p>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <div class="live-clock-card">
+          <span class="live-dot"></span>
+          <span id="liveClock" class="clock-display">00:00:00</span>
+        </div>
+        <div class="status-indicator armed" id="systemStatusPill">
+          <span class="status-glow"></span>
+          PROTOCOL ARMED
+        </div>
+      </div>
+    </header>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="bento-toast" style="display: none;"></div>
+
+    <!-- Master Bento Grid -->
+    <main class="bento-grid">
+
+      <!-- Bento Tile 1: Hero Protocol Banner (Span 7) -->
+      <section class="bento-tile tile-hero col-span-7">
+        <div class="tile-header">
+          <div class="tile-title-wrap">
+            <span class="tile-badge badge-sage">PRIMARY PROTOCOL</span>
+            <h2>Autonomous Curfew & 3-Day Focus Pledge</h2>
+          </div>
+          <span class="time-range-pill" id="curfewRangeBadge">21:00 → 07:00 DAILY</span>
+        </div>
+        <p class="hero-desc">
+          ARE safeguards your mental clarity by enforcing an <strong>unbreakable 3-day commitment</strong> on every restricted link.
+          Once entered, restrictions cannot be revoked, disabled, or removed for 72 hours.
+          After 3 days, a mindful check-in prompt appears when you open the site.
+        </p>
+        <div class="hero-footer">
+          <div class="hero-status-box">
+            <span class="hero-status-label">CURRENT CURFEW STATE</span>
+            <span class="hero-status-val" id="curfewActiveState">Armed • Begins at 21:00</span>
+          </div>
+          <div class="hero-actions">
+            <button class="btn btn-sage" id="quickApplyCurfewBtn">Arm 9 PM WhatsApp Curfew</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Bento Tile 2: Focus Lock / Sprint Shield (Span 5) -->
+      <section class="bento-tile tile-focus col-span-5">
+        <div class="tile-header">
+          <div class="tile-title-wrap">
+            <span class="tile-badge badge-rose">INSTANT BARRIER</span>
+            <h2>Focus Sprint Lock</h2>
+          </div>
+          <span class="lock-pill" id="strictLockPill">STRICT ARMOR</span>
+        </div>
+
+        <div id="focusInactiveState">
+          <p class="focus-desc">Lock all governed links immediately for deep work, study, or an intentional screen break.</p>
+          <div class="bento-chips-row">
+            <button class="bento-chip" data-time="25">25m</button>
+            <button class="bento-chip selected" data-time="45">45m</button>
+            <button class="bento-chip" data-time="60">60m</button>
+            <button class="bento-chip" data-time="120">2h</button>
+          </div>
+          <button id="activateFocusBtn" class="btn btn-rose full-width">☕ Engage Focus Session</button>
+        </div>
+
+        <div id="focusActiveState" style="display: none;">
+          <div class="countdown-bento-card">
+            <span class="countdown-label">TIME REMAINING IN FOCUS SPRINT</span>
+            <span class="countdown-val" id="focusCountdownVal">00:00:00</span>
+            <p class="countdown-sub">Strict mode is engaged. No early override.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Bento Tile 3: Stat Today (Span 4) -->
+      <section class="bento-tile tile-stat col-span-4">
+        <div class="stat-inner">
+          <div class="stat-top">
+            <span class="stat-icon-wrap sage">🌱</span>
+            <span class="stat-trend">+ Today</span>
+          </div>
+          <div class="stat-content">
+            <span class="stat-val" id="bentoTodayBlocked">0</span>
+            <span class="stat-title">Interceptions Today</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Bento Tile 4: Stat Lifetime (Span 4) -->
+      <section class="bento-tile tile-stat col-span-4">
+        <div class="stat-inner">
+          <div class="stat-top">
+            <span class="stat-icon-wrap amber">☕</span>
+            <span class="stat-trend">Lifetime</span>
+          </div>
+          <div class="stat-content">
+            <span class="stat-val" id="bentoTotalBlocked">0</span>
+            <span class="stat-title">Total Distractions Blocked</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Bento Tile 5: Stat Active Pledges (Span 4) -->
+      <section class="bento-tile tile-stat col-span-4">
+        <div class="stat-inner">
+          <div class="stat-top">
+            <span class="stat-icon-wrap blue">🔒</span>
+            <span class="stat-trend">Armed</span>
+          </div>
+          <div class="stat-content">
+            <span class="stat-val" id="bentoActiveCount">0</span>
+            <span class="stat-title">Active 3-Day Pledges</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Bento Tile 6: Rule Forge (Create Link Restriction) (Span 7) -->
+      <section class="bento-tile tile-builder col-span-7">
+        <div class="tile-header">
+          <div class="tile-title-wrap">
+            <span class="tile-badge badge-amber">RULE FORGE</span>
+            <h2>Create New Link Restriction</h2>
+          </div>
+        </div>
+
+        <div class="forge-pledge-banner">
+          <span class="banner-icon">🔒</span>
+          <div>
+            <strong>Mandatory 72-Hour Pledge:</strong> Adding a link seals it under a strict 3-day lock. You will not have access to revoke or delete it during these 3 days.
+          </div>
+        </div>
+
+        <form id="bentoRuleForm" class="bento-form">
+          <div class="form-grid-2">
+            <div class="input-block">
+              <label for="rulePattern">Target URL / Domain Pattern *</label>
+              <div class="input-wrap">
+                <input type="text" id="rulePattern" placeholder="e.g. web.whatsapp.com, instagram.com" required>
+              </div>
+            </div>
+
+            <div class="input-block">
+              <label for="ruleName">Display Name</label>
+              <div class="input-wrap">
+                <input type="text" id="ruleName" placeholder="e.g. WhatsApp Curfew">
+              </div>
+            </div>
+          </div>
+
+          <!-- Mode Cards -->
+          <div class="input-block">
+            <label>Restriction Logic</label>
+            <div class="bento-mode-grid">
+              <label class="bento-mode-card selected">
+                <input type="radio" name="ruleMode" value="schedule" checked>
+                <div class="mode-text">
+                  <strong>Daily Curfew</strong>
+                  <span>Auto-locks in time range (e.g. 9 PM - 7 AM)</span>
+                </div>
+              </label>
+
+              <label class="bento-mode-card">
+                <input type="radio" name="ruleMode" value="countdown">
+                <div class="mode-text">
+                  <strong>Sprint Timer</strong>
+                  <span>Blocks for next X hours starting now</span>
+                </div>
+              </label>
+
+              <label class="bento-mode-card">
+                <input type="radio" name="ruleMode" value="always">
+                <div class="mode-text">
+                  <strong>Permanent Wall</strong>
+                  <span>Continuous barrier for the full 3 days</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Schedule Times Panel -->
+          <div id="scheduleTimesBox" class="bento-sub-panel">
+            <div class="form-grid-2">
+              <div class="input-block">
+                <label for="startTime">Curfew Start Time</label>
+                <input type="time" id="startTime" value="21:00">
+              </div>
+              <div class="input-block">
+                <label for="endTime">Curfew End Time (Next Morning)</label>
+                <input type="time" id="endTime" value="07:00">
+              </div>
+            </div>
+
+            <div class="input-block">
+              <label>Days Active</label>
+              <div class="bento-days-row">
+                <label class="day-chip"><input type="checkbox" name="days" value="0" checked><span>Sun</span></label>
+                <label class="day-chip"><input type="checkbox" name="days" value="1" checked><span>Mon</span></label>
+                <label class="day-chip"><input type="checkbox" name="days" value="2" checked><span>Tue</span></label>
+                <label class="day-chip"><input type="checkbox" name="days" value="3" checked><span>Wed</span></label>
+                <label class="day-chip"><input type="checkbox" name="days" value="4" checked><span>Thu</span></label>
+                <label class="day-chip"><input type="checkbox" name="days" value="5" checked><span>Fri</span></label>
+                <label class="day-chip"><input type="checkbox" name="days" value="6" checked><span>Sat</span></label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Countdown Duration Panel -->
+          <div id="countdownDurationBox" class="bento-sub-panel" style="display: none;">
+            <div class="input-block">
+              <label for="countdownHours">Duration (Hours)</label>
+              <input type="number" id="countdownHours" value="2" min="0.5" step="0.5" max="24">
+            </div>
+          </div>
+
+          <!-- Mindset Message -->
+          <div class="input-block">
+            <label for="customMessage">Custom Grounding Quote / Message</label>
+            <input type="text" id="customMessage" placeholder="e.g. Protect your mental peace. Put the phone down and sleep!">
+          </div>
+
+          <button type="submit" class="btn btn-sage full-width">🌱 Lock Link Under 3-Day Pledge</button>
+        </form>
+      </section>
+
+      <!-- Bento Tile 7: Curfew Presets & Protocols (Span 5) -->
+      <section class="bento-tile tile-presets col-span-5">
+        <div class="tile-header">
+          <div class="tile-title-wrap">
+            <span class="tile-badge badge-lavender">QUICK PRESETS</span>
+            <h2>Curfew Protocols</h2>
+          </div>
+        </div>
+
+        <div class="preset-cards-stack">
+          <div class="preset-item">
+            <div class="preset-info">
+              <h3>🌙 9:00 PM Bedtime Curfew</h3>
+              <p>Locks WhatsApp Web, Instagram, YouTube, X/Twitter, and Reddit every night between 21:00 and 07:00.</p>
+            </div>
+            <button class="btn btn-sm btn-sage" id="presetNightCurfewBtn">Arm Preset</button>
+          </div>
+
+          <div class="preset-item">
+            <div class="preset-info">
+              <h3>📚 Deep Exam & Study Shield</h3>
+              <p>9:00 AM to 6:00 PM daily study blockade on entertainment feeds, Discord, and streaming sites.</p>
+            </div>
+            <button class="btn btn-sm btn-secondary" id="presetStudyBtn">Arm Preset</button>
+          </div>
+
+          <div class="preset-item">
+            <div class="preset-info">
+              <h3>🛡️ Strict Mode Armor</h3>
+              <p>Prevents modifying or disabling rules during active lock or curfew periods.</p>
+            </div>
+            <label class="bento-switch">
+              <input type="checkbox" id="strictModeToggle" checked>
+              <span class="bento-slider"></span>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <!-- Bento Tile 8: Governed Links Vault (Span 12) -->
+      <section class="bento-tile tile-vault col-span-12">
+        <div class="tile-header">
+          <div class="tile-title-wrap">
+            <span class="tile-badge badge-blue">ACTIVE PLEDGES</span>
+            <h2>Governed Links & Rules Vault</h2>
+          </div>
+          <span class="vault-counter" id="vaultCount">[0 RULES LOADED]</span>
+        </div>
+
+        <div class="rules-bento-grid" id="rulesBentoGrid">
+          <!-- Injected dynamically via JS -->
+        </div>
+      </section>
+
+      <!-- Bento Tile 9: Reflection & Intent Audit Logs (Span 12) -->
+      <section class="bento-tile tile-audit col-span-12">
+        <div class="tile-header">
+          <div class="tile-title-wrap">
+            <span class="tile-badge badge-amber">DATA INSIGHTS</span>
+            <h2>Reflection & Intent Audit Vault</h2>
+          </div>
+          <button class="btn btn-sm btn-secondary" id="clearAuditLogsBtn">Clear History</button>
+        </div>
+
+        <p class="audit-intro">
+          Actual psychological and behavioral data collected from the 7-step follow-up reflections completed when 3-day milestones expire.
+        </p>
+
+        <div class="audit-logs-container" id="auditLogsContainer">
+          <!-- Injected dynamically -->
+        </div>
+      </section>
+
+      <!-- Bento Tile 10: Danger Zone / System Maintenance (Span 12) -->
+      <section class="bento-tile tile-danger col-span-12">
+        <div class="system-danger-row">
+          <div>
+            <h3>Reset Interception Statistics</h3>
+            <p>Clear all lifetime and daily interception logs. Rules and active 3-day commitments remain untouched.</p>
+          </div>
+          <button class="btn btn-danger" id="resetStatsBtn">Reset Counters</button>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>

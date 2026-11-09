@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ARE | Mindful Pause & Focus Shield</title>
+  <link rel="stylesheet" href="blocked.css">
+</head>
+<body>
+  <div class="cozy-shell">
+
+    <!-- Cozy Top Bar -->
+    <header class="cozy-topbar">
+      <div class="brand-pill">
+        <span class="brand-icon">🌱</span>
+        <span class="brand-text">ARE • Focus Sanctuary</span>
+      </div>
+      <div class="shield-badge" id="shieldBadge">
+        <span class="status-dot"></span>
+        <span id="shieldBadgeText">3-Day Pledge Active</span>
+      </div>
+    </header>
+
+    <!-- VIEW 1: Active 3-Day Lock Screen -->
+    <main id="activeLockView" class="cozy-card main-card">
+      <div class="hero-icon-wrap">
+        <span class="hero-emoji">☕</span>
+      </div>
+
+      <div class="target-chip" id="blockedUrlDisplay">web.whatsapp.com</div>
+      <h1 class="main-title">A gentle pause for your mind</h1>
+      <p class="main-subtitle" id="blockReasonText">
+        This link is currently resting under your active curfew schedule.
+      </p>
+
+      <!-- 3-Day Commitment Card -->
+      <div class="pledge-pod">
+        <div class="pod-header">
+          <span class="pod-tag">🔒 MANDATORY 3-DAY PLEDGE</span>
+          <span class="pod-badge">NO EARLY BYPASS</span>
+        </div>
+        <div class="countdown-large" id="lockCountdown">2d 14h 32m remaining</div>
+        <p class="pod-desc">
+          You made an intentional 72-hour commitment to protect your energy and time.
+          This barrier cannot be toggled off or removed until the 3-day milestone arrives.
+        </p>
+      </div>
+
+      <!-- Grounding Quote -->
+      <div class="quote-pod">
+        <p class="quote-text" id="quoteText">
+          “You set this rule to protect your peace of mind and tomorrow's clarity. Breathe, put the screen aside, and rest.”
+        </p>
+      </div>
+
+      <!-- Actions -->
+      <div class="action-row">
+        <button id="closeTabBtn" class="cozy-btn btn-primary">Close This Tab & Rest 🌿</button>
+        <button id="openStudioBtn" class="cozy-btn btn-secondary">Open ARE Studio ⚙</button>
+      </div>
+    </main>
+
+    <!-- VIEW 2: 3-Day Milestone Review Screen -->
+    <main id="reviewView" class="cozy-card review-card" style="display: none;">
+
+      <!-- Initial Decision Stage -->
+      <div id="initialDecisionStage">
+        <div class="hero-icon-wrap gold">
+          <span class="hero-emoji">🌟</span>
+        </div>
+        <span class="milestone-badge">3-DAY MILESTONE COMPLETED</span>
+        <h1 class="main-title">Your 3-day restriction period has ended</h1>
+        <p class="main-subtitle">
+          You successfully completed 3 days of calm focus away from <strong id="reviewDomainName">this site</strong>!
+        </p>
+
+        <div class="decision-prompt-box">
+          <h2 class="prompt-question">Do you want to continue the restriction?</h2>
+          <p class="prompt-hint">
+            Continuing will secure another uninterrupted 3-day focus pledge (72 hours).
+          </p>
+
+          <div class="decision-buttons-stack">
+            <button id="btnContinueRestriction" class="cozy-btn btn-success btn-lg">
+              🌱 Yes, Lock for Another 3 Days
+            </button>
+            <button id="btnDeclineContinue" class="cozy-btn btn-outline btn-lg">
+              🤔 No, I want to explore removing it...
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 7-Step Follow-Up Reflection Wizard -->
+      <div id="reflectionWizardStage" style="display: none;">
+        <div class="wizard-header">
+          <div class="wizard-stepper">
+            <span class="wizard-step-tag">Mindful Decision Audit</span>
+            <span class="wizard-counter" id="stepCounterText">Question 1 of 7</span>
+          </div>
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" id="wizardProgressBar" style="width: 14.2%;"></div>
+          </div>
+        </div>
+
+        <form id="auditForm" class="wizard-form">
+          <!-- Question 1 -->
+          <div class="wizard-question-pane active" data-step="1">
+            <h3 class="q-title">1. Do you want to remove it or not?</h3>
+            <p class="q-sub">Be completely honest with your immediate intention.</p>
+            <div class="cozy-options-list">
+              <label class="cozy-option">
+                <input type="radio" name="q1_remove" value="permanent_remove" required>
+                <div class="opt-content">
+                  <strong>Yes, I want to permanently remove this restriction</strong>
+                  <span>I want full, unrestricted access back.</span>
+                </div>
+              </label>
+              <label class="cozy-option">
+                <input type="radio" name="q1_remove" value="temporary_grace">
+                <div class="opt-content">
+                  <strong>No, I just need a temporary 1-hour grace pass</strong>
+                  <span>I need to check something briefly, then re-lock for 3 days.</span>
+                </div>
+              </label>
+              <label class="cozy-option">
+                <input type="radio" name="q1_remove" value="hesitant_impulse">
+                <div class="opt-content">
+                  <strong>I'm acting on a sudden impulse / I'm unsure</strong>
+                  <span>I felt a habit loop kick in without thinking.</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Question 2 -->
+          <div class="wizard-question-pane" data-step="2">
+            <h3 class="q-title">2. What specific task or trigger brings you here right now?</h3>
+            <p class="q-sub">Identify the root trigger behind opening this site.</p>
+            <div class="cozy-options-list">
+              <label class="cozy-option">
+                <input type="radio" name="q2_task" value="urgent_work" required>
+                <div class="opt-content">
+                  <strong>Essential work or study task that cannot wait</strong>
+                  <span>Directly required for an active commitment or deadline.</span>
+                </div>
+              </label>
+              <label class="cozy-option">
+                <input type="radio" name="q2_task" value="important_message">
+                <div class="opt-content">
+                  <strong>Important personal communication</strong>
+                  <span>Replying to someone specific, not general scrolling.</span>
+                </div>
+              </label>
+              <label class="cozy-option">
+                <input type="radio" name="q2_task" value="habitual_reflex">
+                <div class="opt-content">
+                  <strong>Subconscious muscle memory</strong>
+                  <span>Opened the tab automatically without a specific goal.</span>
+                </div>
+              </label>
+              <label class="cozy-option">
+                <input type="radio" name="q2_task" value="boredom_stimulation">
+                <div class="opt-content">
+                  <strong>Boredom / Seeking quick stimulation</strong>
+                  <span>Looking for novelty, dopamine, or entertainment.</span>
+                </div>
+              </label>
+              <label class="cozy-option">
+                <input type="radio" name="q2_task" value="procrastination">
+                <div class="opt-content">
+                  <strong>Stress avoidance / Procrastination</strong>
+                  <span>Avoiding an uncomfortable or demanding offline task.</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Question 3 -->
+          <div class="wizard-question-pane" data-step="3">
+            <h3 class="q-title">3. What is your honest emotional state right now?</h3>
+            <p class="q-sub">Self-awareness breaks impulsive loops before they start.</p>
+            <div class="cozy-options-list">
+              <label class="cozy-option">
+                <input type="radio" name="q3_emotion" value="calm_grounded" required>
+                <div class="opt-content">
+                  <strong>Calm, centered, and fully intentional</strong>
+                  <span>I feel completely at ease and in control.</span>
+                </div>
+              </label>
+              <label class="cozy-option">
+                <input type="radio" name="q3_emotion" value="fatigued_tired">
+                <div class="opt-content">
+                  <strong>Tired, low-energy, or exhausted</strong>
+                  <span>My willpower is depleted and my brain wants a passive escape.</span>
+                </div>
+              </label>
+              <label class="cozy-option">
+                <input type="radio" name="q3_emotion" value="stressed_anxious">
+                <div class="opt-content">
+                  <strong>Stressed, restless, or anxious</strong>
+                  <span>Seeking relief from difficult feelings or tension.</span>
+                </div>
+              </label>
+              <label class="cozy-option">
+                <input type="radio" name="q3_emotion" value="restless_distracted">
+                <div class="opt-content">
+                  <strong>Scattered or struggling to focus</strong>
+                  <span>Finding it difficult to stay anchored on my current work.</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Question 4 -->
+          <div class="wizard-question-pane" data-step="4">
+            <h3 class="q-title">4. How many minutes do you realistically intend to spend?</h3>
+            <p class="q-sub">Estimate your actual time investment if the site opens.</p>
+            <div class="cozy-options-list">
+              <label class="cozy-option">
+                <input type="radio" name="q4_time" value="under_5m" required>
+                <div class="opt-content">
+                  <strong>Under 5 minutes</strong>
+                  <span>In and out for one specific item.</span>
+                </div>
+              </label>
+              <label class="cozy-option">
+                <input type="radio" name="q4_time" value="15_to_30m">
+                <div class="opt-content">
+                  <strong>15 to 30 minutes</strong>
+                  <span>Moderate browse or catching up on feeds.</span>
+                </div>
+              </label>
+              <label class="cozy-option">
+                <input type="radio" name="q4_time" value="45_to_60m">
+                <div class="opt-content">
+                  <strong>45 to 60+ minutes</strong>
+                  <span>Significant chunk of my available time today.</span>
+                </div>
+              </label>
+              <label class="cozy-option">
+                <input type="radio" name="q4_time" value="open_ended">
+                <div class="opt-content">
+                  <strong>Open-ended / I usually lose track of time here</strong>
+                  <span>Time tends to slip away without me noticing.</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Question 5 -->
+          <div class="wizard-question-pane" data-step="5">
+            <h3 class="q-title">5. How high is the risk of falling into a scroll loop?</h3>
+            <p class="q-sub">Assess the addictive mechanics of this specific platform.</p>
+            <div class="cozy-options-list">
+              <label class="cozy-option">
+                <input type="radio" name="q5_risk" value="low_risk" required>
+                <div class="opt-content">
+                  <strong>Low Risk (&lt; 20%)</strong>
+                  <span>I will finish my task and close the window promptly.</span>
+                </div>
+              </label>
+              <label class="cozy-option">
+                <input type="radio" name="q5_risk" value="moderate_risk">
+                <div class="opt-content">
+                  <strong>Moderate Risk (~50%)</strong>
+                  <span>I might get sidetracked by notifications or suggested content.</span>
+                </div>
+              </label>
+              <label class="cozy-option">
+                <input type="radio" name="q5_risk" value="high_risk">
+                <div class="opt-content">
+                  <strong>High Risk (&gt; 80%)</strong>
+                  <span>Past experience shows I almost always get sucked in.</span>
+                </div>
+              </label>
+              <label class="cozy-option">
+                <input type="radio" name="q5_risk" value="inevitable_trap">
+                <div class="opt-content">
+                  <strong>Almost Inevitable</strong>
+                  <span>The platform's algorithms are stronger than my current willpower.</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Question 6 -->
+          <div class="wizard-question-pane" data-step="6">
+            <h3 class="q-title">6. What is one restorative offline activity you could do instead?</h3>
+            <p class="q-sub">Nurture a healthier habit for the next 10 minutes.</p>
+            <div class="cozy-options-list">
+              <label class="cozy-option">
+                <input type="radio" name="q6_alternative" value="drink_water_stretch" required>
+                <div class="opt-content">
+                  <strong>Drink a warm tea / cool water & stretch</strong>
+                  <span>Give my physical body a gentle refresh away from screens.</span>
+                </div>
+              </label>
+              <label class="cozy-option">
+                <input type="radio" name="q6_alternative" value="walk_outside">
+                <div class="opt-content">
+                  <strong>Step outside for 5 minutes of fresh air</strong>
+                  <span>Look at the horizon, breathe deeply, and reset my eyes.</span>
+                </div>
+              </label>
+              <label class="cozy-option">
+                <input type="radio" name="q6_alternative" value="read_book">
+                <div class="opt-content">
+                  <strong>Read a physical book or write in a journal</strong>
+                  <span>Slow, linear stimulation that calms my nervous system.</span>
+                </div>
+              </label>
+              <label class="cozy-option">
+                <input type="radio" name="q6_alternative" value="sleep_wind_down">
+                <div class="opt-content">
+                  <strong>Go to sleep / wind down in bed</strong>
+                  <span>Acknowledge that I am tired and allow myself real rest.</span>
+                </div>
+              </label>
+              <label class="cozy-option">
+                <input type="radio" name="q6_alternative" value="focus_main_task">
+                <div class="opt-content">
+                  <strong>Tackle 15 minutes on my single most important task</strong>
+                  <span>Build momentum where it actually counts.</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Question 7 -->
+          <div class="wizard-question-pane" data-step="7">
+            <h3 class="q-title">7. Final Conscious Decision</h3>
+            <p class="q-sub">Having paused and audited your intent, choose your verified path.</p>
+            <div class="cozy-options-list">
+              <label class="cozy-option final-option opt-success">
+                <input type="radio" name="q7_action" value="relock_3d" checked required>
+                <div class="opt-content">
+                  <strong>🌱 Re-arm 3-Day Lock Now (Recommended)</strong>
+                  <span>I see the reflex for what it is. Keep me protected for another 3 days.</span>
+                </div>
+              </label>
+              <label class="cozy-option final-option opt-amber">
+                <input type="radio" name="q7_action" value="grace_1h">
+                <div class="opt-content">
+                  <strong>⏳ 1-Hour Focus Grace Pass</strong>
+                  <span>Grant 60 minutes access for my immediate task, then automatically re-lock for 3 days.</span>
+                </div>
+              </label>
+              <label class="cozy-option final-option opt-danger">
+                <input type="radio" name="q7_action" value="remove">
+                <div class="opt-content">
+                  <strong>🗑️ Permanently Remove Restriction</strong>
+                  <span>Release this rule completely. My reflection data will be archived in ARE Studio.</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Wizard Navigation Buttons -->
+          <div class="wizard-nav-row">
+            <button type="button" id="wizardBackBtn" class="cozy-btn btn-secondary" style="display: none;">← Back</button>
+            <button type="button" id="wizardNextBtn" class="cozy-btn btn-primary">Continue →</button>
+            <button type="submit" id="wizardSubmitBtn" class="cozy-btn btn-success" style="display: none;">Execute Decision ✨</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Completion Confirmation Message -->
+      <div id="decisionResultStage" style="display: none;">
+        <div class="hero-icon-wrap" id="resultIcon">🌱</div>
+        <h2 class="main-title" id="resultTitle">Pledge Updated</h2>
+        <p class="main-subtitle" id="resultDesc">Your choice has been recorded.</p>
+        <div class="action-row">
+          <button id="resultActionBtn" class="cozy-btn btn-primary">Done 🌿</button>
+        </div>
+      </div>
+
+    </main>
+
+  </div>
+
+  <script src="blocked.js"></script>
+</body>
+</html>

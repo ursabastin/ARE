@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ARE | Mindful Quick Shield</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-shell">
+
+    <!-- Header -->
+    <header class="cozy-header">
+      <div class="brand-row">
+        <span class="brand-emoji">🌱</span>
+        <div>
+          <div class="brand-title">ARE <span class="version-tag">v2.0</span></div>
+          <div class="brand-subtitle">Cozy Cognitive Shield</div>
+        </div>
+      </div>
+      <div class="status-pill" id="popupStatus">ARMED</div>
+    </header>
+
+    <!-- Current Tab Detector -->
+    <section class="cozy-card tab-detector-card">
+      <div class="card-tag">CURRENT TAB</div>
+      <div class="tab-action-row">
+        <span class="detected-domain" id="currentDomain">Scanning...</span>
+        <button id="quickBlockBtn" class="cozy-btn btn-primary btn-sm">+ 3-Day Lock</button>
+      </div>
+      <div class="pledge-notice">🔒 Adding a link locks it strictly for 72 hours with zero bypasses.</div>
+    </section>
+
+    <!-- Focus Sprint Shield -->
+    <section class="cozy-card focus-card">
+      <div class="card-head-row">
+        <span class="card-tag tag-rose">FOCUS SPRINT</span>
+        <span class="strict-chip">STRICT ARMOR</span>
+      </div>
+
+      <div id="focusInactiveView">
+        <div class="timer-chips-row">
+          <button class="cozy-chip" data-time="25">25m</button>
+          <button class="cozy-chip selected" data-time="45">45m</button>
+          <button class="cozy-chip" data-time="60">60m</button>
+          <button class="cozy-chip" data-time="120">2h</button>
+        </div>
+        <button id="startFocusBtn" class="cozy-btn btn-rose full-width">☕ Engage Focus Session</button>
+      </div>
+
+      <div id="focusActiveView" style="display: none;">
+        <div class="active-lock-pod">
+          <span class="lock-label">FOCUS SPRINT REMAINING</span>
+          <span class="lock-clock" id="focusRemainingText">00:00</span>
+          <span class="lock-sub">Strict Lock Active • Deep Work Mode</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Governed Rules Micro-List -->
+    <section class="cozy-card rules-card">
+      <div class="card-head-row">
+        <span class="card-tag">GOVERNED PLEDGES</span>
+        <span class="rules-counter" id="ruleCount">0 links</span>
+      </div>
+      <ul class="rules-list" id="ruleList">
+        <!-- Injected dynamically -->
+      </ul>
+    </section>
+
+    <!-- Footer Stats & Settings Link -->
+    <footer class="cozy-footer">
+      <div class="footer-metric">
+        <span class="metric-num" id="todayBlockedCount">0</span>
+        <span class="metric-label">Blocked Today</span>
+      </div>
+      <button id="openSettingsBtn" class="cozy-btn btn-secondary">Open ARE Studio ☕</button>
+    </footer>
+
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
