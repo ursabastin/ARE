@@ -292,6 +292,30 @@ body {
   color: var(--text-muted);
 }
 
+.rules-counter {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--sage-green);
+}
+
+.popup-search-input {
+  width: 100%;
+  font-family: var(--font-family);
+  font-size: 11px;
+  padding: 6px 10px;
+  margin-bottom: 8px;
+  background: var(--bg-card-subtle);
+  border: 1px solid var(--border-warm);
+  border-radius: 6px;
+  color: var(--text-primary);
+  outline: none;
+}
+
+.popup-search-input:focus {
+  border-color: var(--sage-green);
+  background: var(--bg-card);
+}
+
 /* Rules List */
 .rules-list {
   list-style: none;

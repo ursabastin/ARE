@@ -62,7 +62,7 @@
             <span class="hero-status-val" id="curfewActiveState">Armed • Begins at 21:00</span>
           </div>
           <div class="hero-actions">
-            <button class="btn btn-sage" id="quickApplyCurfewBtn">Arm 9 PM WhatsApp Curfew</button>
+            <button class="btn btn-sage" id="quickApplyCurfewBtn">Arm Complete 45-Site Social Shield</button>
           </div>
         </div>
       </section>
@@ -259,16 +259,24 @@
         <div class="preset-cards-stack">
           <div class="preset-item">
             <div class="preset-info">
-              <h3>🌙 9:00 PM Bedtime Curfew</h3>
-              <p>Locks WhatsApp Web, Instagram, YouTube, X/Twitter, and Reddit every night between 21:00 and 07:00.</p>
+              <h3>🌙 Complete Social & Escapism Shield</h3>
+              <p>Locks 45 platforms: Instagram, WhatsApp, Reddit, Pinterest, Telegram, TikTok, YouTube, X, Threads, Discord, Quora, Twitch, Netflix & more (21:00 → 07:00).</p>
             </div>
-            <button class="btn btn-sm btn-sage" id="presetNightCurfewBtn">Arm Preset</button>
+            <button class="btn btn-sm btn-sage" id="presetNightCurfewBtn">Arm All</button>
+          </div>
+
+          <div class="preset-item">
+            <div class="preset-info">
+              <h3>🔒 24/7 Total Dopamine Blackout</h3>
+              <p>Upgrades all 45 social, video, chat & streaming sites to continuous 24/7 restriction under a 3-day pledge.</p>
+            </div>
+            <button class="btn btn-sm btn-rose" id="presetTotalBlackoutBtn">Lock 24/7</button>
           </div>
 
           <div class="preset-item">
             <div class="preset-info">
               <h3>📚 Deep Exam & Study Shield</h3>
-              <p>9:00 AM to 6:00 PM daily study blockade on entertainment feeds, Discord, and streaming sites.</p>
+              <p>9:00 AM to 6:00 PM weekday study blockade on entertainment feeds, Discord, and streaming sites.</p>
             </div>
             <button class="btn btn-sm btn-secondary" id="presetStudyBtn">Arm Preset</button>
           </div>
@@ -294,6 +302,20 @@
             <h2>Governed Links & Rules Vault</h2>
           </div>
           <span class="vault-counter" id="vaultCount">[0 RULES LOADED]</span>
+        </div>
+
+        <div class="vault-toolbar">
+          <input type="text" id="vaultSearchInput" class="vault-search" placeholder="Search restricted platforms (e.g. pinterest, telegram, reddit)...">
+          <div class="vault-filter-chips" id="vaultCategoryFilters">
+            <button type="button" class="filter-chip active" data-cat="all">All</button>
+            <button type="button" class="filter-chip" data-cat="social">Social</button>
+            <button type="button" class="filter-chip" data-cat="video">Video & Pins</button>
+            <button type="button" class="filter-chip" data-cat="messaging">Messaging</button>
+            <button type="button" class="filter-chip" data-cat="forums">Forums</button>
+            <button type="button" class="filter-chip" data-cat="streaming">Streaming</button>
+            <button type="button" class="filter-chip" data-cat="dating">Dating</button>
+            <button type="button" class="filter-chip" data-cat="custom">Custom</button>
+          </div>
         </div>
 
         <div class="rules-bento-grid" id="rulesBentoGrid">

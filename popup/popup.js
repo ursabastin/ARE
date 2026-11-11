@@ -2,6 +2,8 @@
 
 let currentTabDomain = "";
 let selectedFocusMinutes = 45;
+let popupRulesCache = [];
+let popupSearchQuery = "";
 
 document.addEventListener('DOMContentLoaded', async () => {
   await initCurrentTab();
@@ -74,8 +76,32 @@ async function loadState() {
     }
 
     // Render Rules List
-    renderRules(state.rules || []);
+    popupRulesCache = state.rules || [];
+    updateCurrentTabLockButton(popupRulesCache);
+    renderRules(popupRulesCache);
   });
+}
+
+function isDomainMatchedByRule(hostname, rawPattern) {
+  const pattern = (rawPattern || "").toLowerCase().replace(/^www\./, '').trim();
+  if (!pattern || !hostname) return false;
+  if (pattern.endsWith('.*')) {
+    const base = pattern.slice(0, -2);
+    return hostname === base || hostname.startsWith(base + '.') || hostname.includes('.' + base + '.');
+  }
+  return hostname === pattern || hostname.endsWith('.' + pattern);
+}
+
+function updateCurrentTabLockButton(rules) {
+  if (!currentTabDomain) return;
+  const btn = document.getElementById('quickBlockBtn');
+  if (!btn) return;
+  const matched = rules.some(r => r.enabled && isDomainMatchedByRule(currentTabDomain, r.pattern));
+  if (matched) {
+    btn.textContent = "🔒 PLEDGED";
+    btn.disabled = true;
+    btn.style.opacity = '0.75';
+  }
 }
 
 function startFocusCountdown(expiresAt) {
@@ -111,14 +137,20 @@ function renderRules(rules) {
   list.innerHTML = "";
   document.getElementById('ruleCount').textContent = `${rules.length} links`;
 
-  if (rules.length === 0) {
-    list.innerHTML = `<li style="text-align: center; padding: 12px; font-size: 11px; color: var(--text-muted);">No rules active. Add a link above to begin.</li>`;
+  const filtered = rules.filter(rule => {
+    if (!popupSearchQuery) return true;
+    return (rule.name || "").toLowerCase().includes(popupSearchQuery) ||
+      (rule.pattern || "").toLowerCase().includes(popupSearchQuery);
+  });
+
+  if (filtered.length === 0) {
+    list.innerHTML = `<li style="text-align: center; padding: 12px; font-size: 11px; color: var(--text-muted);">${rules.length === 0 ? "No rules active. Add a link above to begin." : "No matching links found."}</li>`;
     return;
   }
 
   const now = Date.now();
 
-  rules.forEach(rule => {
+  filtered.forEach(rule => {
     const li = document.createElement('li');
     li.className = 'rule-item';
 
@@ -171,6 +203,12 @@ function renderRules(rules) {
 }
 
 function setupEventListeners() {
+  // Search filter
+  document.getElementById('popupSearchInput')?.addEventListener('input', (e) => {
+    popupSearchQuery = e.target.value.toLowerCase().trim();
+    renderRules(popupRulesCache);
+  });
+
   // Focus timer chips
   document.querySelectorAll('.cozy-chip').forEach(chip => {
     chip.addEventListener('click', () => {

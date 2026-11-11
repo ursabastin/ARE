@@ -125,15 +125,23 @@ All submissions are permanently recorded in the **Reflection & Intent Audit Vaul
 
 ## ⚡ Core Features
 
-* **🌙 Autonomous 9:00 PM Bedtime Curfew:**
-  * Pre-configured targets: `web.whatsapp.com`, `instagram.com`, `youtube.com`, `x.com`, `reddit.com`.
-  * Runs nightly from `21:00` to `07:00` with automated tab inspection.
+* **🛡️ 45-Platform Anti-Escapism Social & Consumption Shield:**
+  * Eliminates platform-hopping! When your main apps are blocked, ARE ensures you cannot run away to secondary feeds or dopamine traps:
+    * **Social Feeds:** `instagram.com`, `facebook.com`, `fb.com`, `threads.net`, `threads.com`, `x.com`, `twitter.com`, `bsky.app`, `mastodon.social`, `linkedin.com`, `tumblr.com`
+    * **Visual & Short Video:** `pinterest.*` (all regional domains), `pin.it`, `tiktok.com`, `snapchat.com`, `youtube.com`, `youtu.be`, `vimeo.com`, `dailymotion.com`
+    * **Messaging & Communities:** `web.whatsapp.com`, `wa.me`, `telegram.org` (`web.telegram.org`), `t.me`, `messenger.com`, `discord.com`, `discord.gg`
+    * **Forums, Q&A & Memes:** `reddit.com`, `redd.it`, `quora.com`, `9gag.com`, `imgur.com`, `4chan.org`, `ifunny.co`
+    * **Streaming & Binge:** `twitch.tv`, `kick.com`, `netflix.com`, `primevideo.com`, `hotstar.com`, `disneyplus.com`, `jiocinema.com`, `sonyliv.com`, `crunchyroll.com`
+    * **Dating / Swiping:** `tinder.com`, `bumble.com`, `hinge.co`
+* **🌙 Autonomous 9:00 PM Bedtime Curfew & 24/7 Blackout Option:**
+  * Runs nightly (`21:00` to `07:00`) with triple-layer interception (`webNavigation`, `tabs.onUpdated`, and 60s `chrome.alarms` tab sweeps).
+  * Includes a one-click **24/7 Total Dopamine Blackout** preset in ARE Studio to lock all 45 platforms continuously for 3 days.
 * **☕ Focus Sprint Lock:**
   * Quick-launch deep work chips (`25m`, `45m`, `60m`, `2h`) with a live countdown display.
 * **🛡️ Strict Mode Armor:**
   * Prevents modifying rules or disabling focus sprints during active curfew hours.
 * **📊 Reflection & Intent Audit Vault:**
-  * View, analyze, or clear logged reflection history and intent data.
+  * View, analyze, or clear logged reflection history and intent data, plus search and filter rules by category.
 * **🍱 Apple Bento Grid Studio:**
   * Live ticking telemetry clock, active protocol pills, and modular restriction forges.
 

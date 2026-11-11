@@ -1,6 +1,9 @@
 // ARE (Autonomous Restrictor Engine) - Cozy 3-Day Bento Studio Controller
 
 let selectedFocusDuration = 45;
+let allRulesCache = [];
+let vaultSearchQuery = "";
+let vaultCategoryFilter = "all";
 
 document.addEventListener('DOMContentLoaded', () => {
   initClock();
@@ -10,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupFocusShield();
   setupStrictModeAndReset();
   setupAuditLogsClear();
+  setupVaultFilters();
 });
 
 function showToast(msg) {
@@ -87,6 +91,7 @@ function loadBentoData() {
     document.getElementById('bentoTotalBlocked').textContent = st.totalBlocked || 0;
 
     const rList = rules || [];
+    allRulesCache = rList;
     const activeRules = rList.filter(r => r.enabled);
     document.getElementById('bentoActiveCount').textContent = activeRules.length;
     document.getElementById('vaultCount').textContent = `[${rList.length} RULES LOADED]`;
@@ -103,6 +108,25 @@ function loadBentoData() {
 
     // Reflection Audit Logs View
     renderAuditLogs(reflectionLogs || []);
+  });
+}
+
+function setupVaultFilters() {
+  const searchInput = document.getElementById('vaultSearchInput');
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      vaultSearchQuery = e.target.value.toLowerCase().trim();
+      renderRulesBentoGrid(allRulesCache);
+    });
+  }
+
+  document.querySelectorAll('#vaultCategoryFilters .filter-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('#vaultCategoryFilters .filter-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      vaultCategoryFilter = chip.getAttribute('data-cat') || 'all';
+      renderRulesBentoGrid(allRulesCache);
+    });
   });
 }
 
@@ -141,14 +165,23 @@ function renderRulesBentoGrid(rules) {
   const grid = document.getElementById('rulesBentoGrid');
   grid.innerHTML = "";
 
-  if (rules.length === 0) {
-    grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 48px; color: var(--text-muted); font-size: 13px;">NO RESTRICTIONS CONFIGURED. USE RULE FORGE ABOVE TO FORTIFY YOUR ATTENTION UNDER A 3-DAY COMMITMENT.</div>`;
+  const filtered = rules.filter(rule => {
+    const cat = (rule.category || "custom").toLowerCase();
+    const matchesCat = vaultCategoryFilter === "all" || cat === vaultCategoryFilter;
+    const matchesSearch = !vaultSearchQuery ||
+      (rule.name || "").toLowerCase().includes(vaultSearchQuery) ||
+      (rule.pattern || "").toLowerCase().includes(vaultSearchQuery);
+    return matchesCat && matchesSearch;
+  });
+
+  if (filtered.length === 0) {
+    grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 48px; color: var(--text-muted); font-size: 13px;">NO MATCHING RESTRICTIONS FOUND.</div>`;
     return;
   }
 
   const now = Date.now();
 
-  rules.forEach(rule => {
+  filtered.forEach(rule => {
     const card = document.createElement('div');
     card.className = 'bento-rule-card';
 
@@ -164,8 +197,14 @@ function renderRulesBentoGrid(rules) {
     const patternPill = document.createElement('span');
     patternPill.className = 'rule-pattern-pill';
     patternPill.textContent = rule.pattern;
+
+    const catPill = document.createElement('span');
+    catPill.className = 'rule-cat-pill';
+    catPill.textContent = (rule.category || 'custom').toUpperCase();
+
     info.appendChild(nameStr);
     info.appendChild(patternPill);
+    info.appendChild(catPill);
 
     const isLocked = rule.lockedUntil && now < rule.lockedUntil;
 
@@ -426,63 +465,66 @@ function setupFocusShield() {
 
 // Presets
 function setupBentoPresets() {
-  function applyCurfewList(targets, presetTitle) {
-    targets.forEach((target, i) => {
-      const rule = {
-        id: "preset_" + i + "_" + Date.now(),
-        name: target.name,
-        pattern: target.pattern,
-        enabled: true,
-        mode: target.mode || "schedule",
-        startTime: target.start || "21:00",
-        endTime: target.end || "07:00",
-        days: [0, 1, 2, 3, 4, 5, 6],
-        customMessage: "Night Curfew Active (21:00 - 07:00). Time to wind down and sleep peacefully!"
-      };
-      chrome.runtime.sendMessage({ action: "ADD_RULE", rule });
+  function armFullSocialShield(mode, title) {
+    chrome.runtime.sendMessage({
+      action: "ARM_FULL_SOCIAL_SHIELD",
+      mode,
+      startTime: "21:00",
+      endTime: "07:00"
+    }, (res) => {
+      if (res && res.status === "success") {
+        showToast(`${title} (${res.count} sites locked for 3 days)!`);
+        loadBentoData();
+      }
     });
-    showToast(`${presetTitle} Armed under 3-day lock!`);
-    setTimeout(loadBentoData, 400);
   }
 
-  const curfewTargets = [
-    { name: "WhatsApp Web", pattern: "web.whatsapp.com" },
-    { name: "Instagram", pattern: "instagram.com" },
-    { name: "YouTube", pattern: "youtube.com" },
-    { name: "Twitter / X", pattern: "x.com" },
-    { name: "Reddit", pattern: "reddit.com" }
-  ];
-
-  document.getElementById('quickApplyCurfewBtn').addEventListener('click', () => {
-    applyCurfewList(curfewTargets, "9 PM WhatsApp Curfew");
+  document.getElementById('quickApplyCurfewBtn')?.addEventListener('click', () => {
+    armFullSocialShield("schedule", "Complete Social & Escapism Shield Armed");
   });
 
-  document.getElementById('presetNightCurfewBtn').addEventListener('click', () => {
-    applyCurfewList(curfewTargets, "Bedtime Curfew Profile");
+  document.getElementById('presetNightCurfewBtn')?.addEventListener('click', () => {
+    armFullSocialShield("schedule", "Night Curfew (21:00–07:00) Armed");
   });
 
-  document.getElementById('presetStudyBtn').addEventListener('click', () => {
+  document.getElementById('presetTotalBlackoutBtn')?.addEventListener('click', () => {
+    if (confirm("🔒 Activate 24/7 Total Dopamine Blackout?\n\nThis locks ALL 45 social media, messaging, video, meme, forum, and streaming platforms 24/7 for 3 full days (72 hours). You will NOT be able to unlock or delete them early.")) {
+      armFullSocialShield("always", "24/7 Total Dopamine Blackout Armed");
+    }
+  });
+
+  document.getElementById('presetStudyBtn')?.addEventListener('click', () => {
     const studyTargets = [
-      { name: "Netflix", pattern: "netflix.com", mode: "always" },
-      { name: "Twitter / X", pattern: "twitter.com", mode: "always" },
-      { name: "Discord", pattern: "discord.com", mode: "schedule", start: "09:00", end: "18:00" }
+      { name: "Netflix", pattern: "netflix.com", category: "streaming", mode: "always" },
+      { name: "Prime Video", pattern: "primevideo.com", category: "streaming", mode: "always" },
+      { name: "Disney+ Hotstar", pattern: "hotstar.com", category: "streaming", mode: "always" },
+      { name: "Twitch", pattern: "twitch.tv", category: "streaming", mode: "always" },
+      { name: "TikTok", pattern: "tiktok.com", category: "video", mode: "always" },
+      { name: "Instagram", pattern: "instagram.com", category: "social", mode: "schedule", start: "09:00", end: "18:00" },
+      { name: "YouTube & Shorts", pattern: "youtube.com", category: "video", mode: "schedule", start: "09:00", end: "18:00" },
+      { name: "Pinterest (All Regions)", pattern: "pinterest.*", category: "video", mode: "schedule", start: "09:00", end: "18:00" },
+      { name: "Reddit", pattern: "reddit.com", category: "forums", mode: "schedule", start: "09:00", end: "18:00" },
+      { name: "Discord Web", pattern: "discord.com", category: "messaging", mode: "schedule", start: "09:00", end: "18:00" },
+      { name: "Telegram Web", pattern: "telegram.org", category: "messaging", mode: "schedule", start: "09:00", end: "18:00" }
     ];
-    studyTargets.forEach((target, i) => {
-      const rule = {
-        id: "study_" + i + "_" + Date.now(),
-        name: target.name,
-        pattern: target.pattern,
-        enabled: true,
-        mode: target.mode,
-        startTime: target.start || "09:00",
-        endTime: target.end || "18:00",
-        days: [1, 2, 3, 4, 5],
-        customMessage: "Exam & Deep Study Blockade in effect."
-      };
-      chrome.runtime.sendMessage({ action: "ADD_RULE", rule });
+
+    const rulesBatch = studyTargets.map((target, i) => ({
+      id: "study_" + i + "_" + Date.now(),
+      name: target.name,
+      pattern: target.pattern,
+      category: target.category,
+      enabled: true,
+      mode: target.mode,
+      startTime: target.start || "09:00",
+      endTime: target.end || "18:00",
+      days: [1, 2, 3, 4, 5],
+      customMessage: "Exam & Deep Study Blockade in effect."
+    }));
+
+    chrome.runtime.sendMessage({ action: "ADD_RULES_BATCH", rules: rulesBatch }, () => {
+      showToast("Deep Study Shield Armed under 3-day lock!");
+      loadBentoData();
     });
-    showToast("Study Shield Armed under 3-day lock!");
-    setTimeout(loadBentoData, 400);
   });
 }
 
