@@ -123,6 +123,16 @@ body {
   border-radius: 4px;
 }
 
+.badge-immutable {
+  font-size: 10px;
+  font-weight: 700;
+  background: var(--sage-light);
+  border: 1px solid var(--sage-border);
+  color: var(--sage-green);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
 .brand-tagline {
   font-size: 12px;
   color: var(--text-muted);
@@ -187,7 +197,17 @@ body {
 }
 .btn-secondary:hover { background: var(--bg-card-subtle); }
 
-/* Demo Banner */
+/* Immutable & Demo Banners */
+.immutable-banner {
+  background: var(--sage-light);
+  border: 1px solid var(--sage-border);
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-size: 12px;
+  color: var(--sage-green);
+  margin-bottom: 16px;
+}
+
 .demo-banner {
   background: var(--amber-light);
   border: 1px solid var(--amber-border);

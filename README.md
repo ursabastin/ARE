@@ -148,9 +148,11 @@ All submissions are permanently recorded in the **Reflection & Intent Audit Vaul
   * Prevents modifying rules or disabling focus sprints during active curfew hours.
 * **📊 Behavioral Telemetry & SaaS Analytics Dashboard (`analytics/analytics.html`):**
   * Dedicated product dashboard visualizing **Time Reclaimed**, **Annualized Hours Projected**, **Normal vs Incognito Split**, **24-Hour Urge Vulnerability Heatmap**, **14-Day Protection Trend**, **Category Escapism Breakdown**, **Top Temptation Domains**, and **7-Step Psychological Insights**.
-  * Includes a **`● Live Local Data` / `✨ Product Demo Preview`** toggle for live product demonstrations and JSON telemetry exports, plus a built-in roadmap for the upcoming **ARE Cloud** micro-subscription platform.
-* **📊 Reflection & Intent Audit Vault:**
-  * View, analyze, or clear logged reflection history and intent data, plus search and filter rules across all categories.
+  * Includes a **`● Live Immutable Reality` / `✨ Product Demo Preview`** toggle for live product demonstrations and JSON telemetry exports, plus a built-in roadmap for the upcoming **ARE Cloud** micro-subscription platform.
+* **🔒 Immutable Reality Ledger (Zero Reset / Zero Delete):**
+  * Once behavioral interceptions, time saved, or 7-step reflection audits are recorded, **they cannot be deleted, cleared, or reset**—enforced both in UI (zero delete/reset buttons) and at the service-worker storage layer via `chrome.storage.onChanged` monotonic integrity restoration.
+* **📝 Reflection & Intent Audit Vault:**
+  * Permanently stores and displays all logged 7-step reflection history and intent data, with search and category filtering across all rules.
 * **🍱 Apple Bento Grid Studio:**
   * Live ticking telemetry clock, active protocol pills, and modular restriction forges.
 

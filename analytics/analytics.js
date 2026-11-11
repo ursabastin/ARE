@@ -409,7 +409,7 @@ function setupExportButton() {
     const payload = currentMode === "demo" ? buildDemoPayload() : (livePayload || { state: {} });
     const exportObj = {
       product: "ARE - Autonomous Restrictor Engine",
-      version: "2.2.0",
+      version: "2.4.0",
       mode: currentMode,
       exportedAt: new Date().toISOString(),
       stats: payload.state.stats || {},

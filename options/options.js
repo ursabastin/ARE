@@ -11,8 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupBentoForm();
   setupBentoPresets();
   setupFocusShield();
-  setupStrictModeAndReset();
-  setupAuditLogsClear();
+  setupStrictModeToggle();
   setupVaultFilters();
 });
 
@@ -545,8 +544,8 @@ function setupBentoPresets() {
   });
 }
 
-// Strict Mode & Reset
-function setupStrictModeAndReset() {
+// Strict Mode Toggle (Stats & Reflection Audits are permanent and never resettable)
+function setupStrictModeToggle() {
   const strictToggle = document.getElementById('strictModeToggle');
   if (strictToggle) {
     strictToggle.addEventListener('change', () => {
@@ -555,41 +554,4 @@ function setupStrictModeAndReset() {
       });
     });
   }
-
-  document.getElementById('resetStatsBtn').addEventListener('click', () => {
-    if (confirm("Reset interception statistics back to 0?")) {
-      const d = new Date();
-      const todayLocal = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-      const stats = {
-        totalBlocked: 0,
-        todayBlocked: 0,
-        normalBlocked: 0,
-        incognitoBlocked: 0,
-        estimatedSavedMinutes: 0,
-        focusMinutesCompleted: 0,
-        focusSessionsCount: 0,
-        commitmentsHonored: 0,
-        lastResetDate: todayLocal,
-        dailyHistory: {},
-        hourlyDistribution: new Array(24).fill(0),
-        categoryCounts: {},
-        domainCounts: {}
-      };
-      chrome.storage.local.set({ stats }, () => {
-        showToast("Stats reset.");
-        loadBentoData();
-      });
-    }
-  });
-}
-
-function setupAuditLogsClear() {
-  document.getElementById('clearAuditLogsBtn')?.addEventListener('click', () => {
-    if (confirm("Clear all reflection audit history?")) {
-      chrome.runtime.sendMessage({ action: "CLEAR_REFLECTION_LOGS" }, () => {
-        showToast("Reflection audit logs cleared.");
-        loadBentoData();
-      });
-    }
-  });
 }

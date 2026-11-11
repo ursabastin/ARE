@@ -652,14 +652,7 @@ async function enforceBlockOnTab(tabId, targetUrl, evaluation) {
     if (isIncognito) stats.dailyHistory[today].incognito += 1;
     stats.dailyHistory[today].savedMinutes += savedMins;
 
-    // Prune dailyHistory to last 90 days
-    const keys = Object.keys(stats.dailyHistory).sort();
-    if (keys.length > 90) {
-      for (const oldKey of keys.slice(0, keys.length - 90)) {
-        delete stats.dailyHistory[oldKey];
-      }
-    }
-
+    // Immutable Reality Ledger: Full historical dailyHistory is preserved permanently without pruning
     await chrome.storage.local.set({ stats });
   }
 
@@ -1034,7 +1027,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         };
 
         reflectionLogs.unshift(auditEntry);
-        if (reflectionLogs.length > 100) reflectionLogs = reflectionLogs.slice(0, 100);
+        // Immutable Reality Ledger: All reflection audits are preserved permanently
 
         if (request.finalAction === 'remove') {
           rules = rules.filter(r => r.id !== request.ruleId);
@@ -1087,9 +1080,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         sendResponse({ status: "success", focusLock });
       }
 
-      else if (request.action === "CLEAR_REFLECTION_LOGS") {
-        await chrome.storage.local.set({ reflectionLogs: [] });
-        sendResponse({ status: "success" });
+      else if (request.action === "CLEAR_REFLECTION_LOGS" || request.action === "RESET_STATS") {
+        sendResponse({
+          status: "error",
+          message: "🔒 Immutable Reality Ledger: Recorded interceptions and reflection audits are permanent and cannot be deleted or altered."
+        });
       }
     } catch (err) {
       console.error("ARE Background Error:", err);
@@ -1097,4 +1092,42 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
   })();
   return true;
+});
+
+// Immutable Reality Ledger Guard: Automatically restores any external attempt to erase or decrease recorded stats or reflectionLogs
+chrome.storage.onChanged.addListener((changes, areaName) => {
+  if (areaName !== 'local') return;
+
+  const restorePayload = {};
+  let needsRestore = false;
+
+  if (changes.stats && changes.stats.oldValue) {
+    const oldStats = changes.stats.oldValue;
+    const newStats = changes.stats.newValue || {};
+    const oldTotal = oldStats.totalBlocked || 0;
+    const newTotal = newStats.totalBlocked || 0;
+    const oldSaved = oldStats.estimatedSavedMinutes || 0;
+    const newSaved = newStats.estimatedSavedMinutes || 0;
+    const oldHonored = oldStats.commitmentsHonored || 0;
+    const newHonored = newStats.commitmentsHonored || 0;
+
+    if (newTotal < oldTotal || newSaved < oldSaved || newHonored < oldHonored) {
+      restorePayload.stats = oldStats;
+      needsRestore = true;
+    }
+  }
+
+  if (changes.reflectionLogs && changes.reflectionLogs.oldValue) {
+    const oldLogs = Array.isArray(changes.reflectionLogs.oldValue) ? changes.reflectionLogs.oldValue : [];
+    const newLogs = Array.isArray(changes.reflectionLogs.newValue) ? changes.reflectionLogs.newValue : [];
+    if (newLogs.length < oldLogs.length) {
+      restorePayload.reflectionLogs = oldLogs;
+      needsRestore = true;
+    }
+  }
+
+  if (needsRestore) {
+    console.warn("ARE Immutable Reality Guard: Blocked tampering attempt on permanent ledger. Restoring reality.");
+    chrome.storage.local.set(restorePayload);
+  }
 });
