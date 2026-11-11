@@ -25,6 +25,9 @@
       </div>
 
       <div class="header-right">
+        <div class="status-indicator armed" id="incognitoStatusPill">
+          🕵️ Checking Incognito...
+        </div>
         <div class="live-clock-card">
           <span class="live-dot"></span>
           <span id="liveClock" class="clock-display">00:00:00</span>
@@ -62,7 +65,7 @@
             <span class="hero-status-val" id="curfewActiveState">Armed • Begins at 21:00</span>
           </div>
           <div class="hero-actions">
-            <button class="btn btn-sage" id="quickApplyCurfewBtn">Arm Complete 45-Site Social Shield</button>
+            <button class="btn btn-sage" id="quickApplyCurfewBtn">Arm Complete NSFW & Entertainment Shield</button>
           </div>
         </div>
       </section>
@@ -259,8 +262,8 @@
         <div class="preset-cards-stack">
           <div class="preset-item">
             <div class="preset-info">
-              <h3>🌙 Complete Social & Escapism Shield</h3>
-              <p>Locks 45 platforms: Instagram, WhatsApp, Reddit, Pinterest, Telegram, TikTok, YouTube, X, Threads, Discord, Quora, Twitch, Netflix & more (21:00 → 07:00).</p>
+              <h3>🛡️ 24/7 NSFW + Full Entertainment & Curfew Shield</h3>
+              <p>Blocks all pornography, adult search queries, streaming, anime, games, manga & short-form loops 24/7 (Normal + Incognito), plus social & chat curfew (21:00 → 07:00).</p>
             </div>
             <button class="btn btn-sm btn-sage" id="presetNightCurfewBtn">Arm All</button>
           </div>
@@ -268,7 +271,7 @@
           <div class="preset-item">
             <div class="preset-info">
               <h3>🔒 24/7 Total Dopamine Blackout</h3>
-              <p>Upgrades all 45 social, video, chat & streaming sites to continuous 24/7 restriction under a 3-day pledge.</p>
+              <p>Locks EVERY category (all adult, entertainment, gaming, streaming, AND all social feeds & chats) continuously 24/7 for 3 days.</p>
             </div>
             <button class="btn btn-sm btn-rose" id="presetTotalBlackoutBtn">Lock 24/7</button>
           </div>
@@ -305,14 +308,17 @@
         </div>
 
         <div class="vault-toolbar">
-          <input type="text" id="vaultSearchInput" class="vault-search" placeholder="Search restricted platforms (e.g. pinterest, telegram, reddit)...">
+          <input type="text" id="vaultSearchInput" class="vault-search" placeholder="Search restricted platforms (e.g. pinterest, netflix, poki, telegram)...">
           <div class="vault-filter-chips" id="vaultCategoryFilters">
             <button type="button" class="filter-chip active" data-cat="all">All</button>
-            <button type="button" class="filter-chip" data-cat="social">Social</button>
+            <button type="button" class="filter-chip" data-cat="adult">Adult / NSFW</button>
+            <button type="button" class="filter-chip" data-cat="streaming">Streaming</button>
+            <button type="button" class="filter-chip" data-cat="gaming">Gaming</button>
+            <button type="button" class="filter-chip" data-cat="comics">Comics & Fun</button>
             <button type="button" class="filter-chip" data-cat="video">Video & Pins</button>
+            <button type="button" class="filter-chip" data-cat="social">Social</button>
             <button type="button" class="filter-chip" data-cat="messaging">Messaging</button>
             <button type="button" class="filter-chip" data-cat="forums">Forums</button>
-            <button type="button" class="filter-chip" data-cat="streaming">Streaming</button>
             <button type="button" class="filter-chip" data-cat="dating">Dating</button>
             <button type="button" class="filter-chip" data-cat="custom">Custom</button>
           </div>

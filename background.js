@@ -1,72 +1,226 @@
 // Autonomous Restrictor - Background Service Worker
-// ARE (Autonomous Restrictor Engine) v2.1 - Cozy 3-Day Anti-Escapism Protocol
+// ARE (Autonomous Restrictor Engine) v2.2 - Cozy 3-Day Anti-Escapism, Entertainment & NSFW Shield
 
 const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000; // 72 Hours Mandatory Lock
-const CATALOG_VERSION = 2;
+const CATALOG_VERSION = 3;
 
-// Comprehensive Anti-Escapism Catalog: All Social Media, Messaging, Video, Forums & Streaming
+// Built-in 24/7 Adult & NSFW Heuristic Guard (Works across Normal + Incognito)
+const ADULT_TLDS = ['.xxx', '.porn', '.sex', '.adult', '.sexy'];
+
+const ADULT_HOST_SUBSTRINGS = [
+  'pornhub', 'xvideos', 'xnxx', 'xhamster', 'redtube', 'youporn', 'tube8',
+  'spankbang', 'eporner', 'hqporner', 'chaturbate', 'stripchat', 'bongacams',
+  'camsoda', 'livejasmin', 'myfreecams', 'onlyfans', 'fansly', 'hentai',
+  'rule34', 'nhentai', 'hanime', 'erome', 'fapello', 'brazzers', 'bangbros',
+  'naughtyamerica', 'realitykings', 'motherless', 'literotica', 'missav',
+  'javhd', 'thisvid', 'heavy-r', 'efukt', 'f95zone', 'coomer', 'kemono',
+  'simpcity', 'nsfw', 'nudevista', 'nudogram', 'camgirl', 'jerkmate',
+  'sexcam', 'livesex', 'freeporn', 'hotsex', 'milf', 'blowjob', 'handjob',
+  'creampie', 'gangbang', 'bukkake', 'cuckold', 'incest', 'bdsm', 'fetish',
+  'gelbooru', 'danbooru', 'e621'
+];
+
+const ADULT_LABEL_REGEX = /(^|[.-])(xxx|sex|porn|porno|nude|nudes|tits|boobs|fap|escort|adult|cam4)([.-]|$)/i;
+
+const SEARCH_ENGINE_HOSTS = [
+  'google.', 'bing.com', 'search.yahoo.com', 'duckduckgo.com',
+  'yandex.', 'ecosia.org', 'search.brave.com', 'startpage.com', 'baidu.com'
+];
+
+const ADULT_SEARCH_REGEX = /\b(porn|porno|pornography|xxx|xvideos|xnxx|xhamster|pornhub|redtube|youporn|spankbang|eporner|hqporner|hentai|rule34|nhentai|hanime|onlyfans|fansly|chaturbate|stripchat|bongacams|camsoda|livejasmin|myfreecams|nsfw|nude|nudes|naked girls|naked women|sex video|sex videos|brazzers|bangbros|erome|fapello|missav|javhd|motherless|literotica)\b/i;
+
+function isAdultOrNsfwUrl(targetUrl) {
+  try {
+    const parsed = new URL(targetUrl);
+    const hostname = parsed.hostname.toLowerCase().replace(/^www\./, '');
+    const pathname = parsed.pathname.toLowerCase();
+
+    // 1. Unambiguous Adult TLDs
+    for (const tld of ADULT_TLDS) {
+      if (hostname.endsWith(tld)) {
+        return { isAdult: true, reason: "24/7 NSFW Shield (Adult TLD Blocked)" };
+      }
+    }
+
+    // 2. Unambiguous Adult Hostname Substrings & Label Boundaries
+    for (const kw of ADULT_HOST_SUBSTRINGS) {
+      if (hostname.includes(kw)) {
+        return { isAdult: true, reason: "24/7 NSFW Shield (Adult Domain Blocked)" };
+      }
+    }
+    if (ADULT_LABEL_REGEX.test(hostname)) {
+      return { isAdult: true, reason: "24/7 NSFW Shield (Adult Keyword Blocked)" };
+    }
+
+    // 3. Adult Path Triggers (e.g. forums/subreddits)
+    if (/\/r\/(nsfw|gonewild|realgirls|porn|hentai|rule34|sex)\b/i.test(pathname)) {
+      return { isAdult: true, reason: "24/7 NSFW Shield (NSFW Community Blocked)" };
+    }
+
+    // 4. Search Engine Query Safe-Guard (stops NSFW searches in Normal & Incognito)
+    const isSearchEngine = SEARCH_ENGINE_HOSTS.some(h =>
+      h.endsWith('.') ? (hostname === h.slice(0, -1) || hostname.startsWith(h) || hostname.includes('.' + h)) : (hostname === h || hostname.endsWith('.' + h))
+    );
+    if (isSearchEngine) {
+      const q = [
+        parsed.searchParams.get('q'),
+        parsed.searchParams.get('p'),
+        parsed.searchParams.get('query'),
+        parsed.searchParams.get('text')
+      ].filter(Boolean).join(' ');
+      if (q && ADULT_SEARCH_REGEX.test(q)) {
+        return { isAdult: true, reason: "24/7 NSFW Search Guard (Query Intercepted)" };
+      }
+    }
+  } catch (e) {
+    // Ignore malformed URLs
+  }
+  return { isAdult: false };
+}
+
+// Comprehensive Anti-Escapism Catalog: Adult, Entertainment, Streaming, Gaming, Comics, Social & Chat
 const SOCIAL_CONSUMPTION_CATALOG = [
-  // --- Social Networks & Infinite Feeds ---
-  { id: "rule_instagram", name: "Instagram", pattern: "instagram.com", category: "social", customMessage: "Step back from the feed. Protect your peace and attention." },
-  { id: "rule_facebook", name: "Facebook", pattern: "facebook.com", category: "social", customMessage: "No endless feed scrolling. Reclaim your quiet time." },
-  { id: "rule_fb", name: "Facebook Shortlink", pattern: "fb.com", category: "social", customMessage: "Social detour intercepted. Stay grounded." },
-  { id: "rule_threads_net", name: "Threads", pattern: "threads.net", category: "social", customMessage: "Don't hop to another feed. Let your mind rest." },
-  { id: "rule_threads_com", name: "Threads (Alt)", pattern: "threads.com", category: "social", customMessage: "Don't hop to another feed. Let your mind rest." },
-  { id: "rule_x", name: "X (Twitter)", pattern: "x.com", category: "social", customMessage: "Step away from the noise and timeline outrage." },
-  { id: "rule_twitter", name: "Twitter (Legacy)", pattern: "twitter.com", category: "social", customMessage: "Step away from the noise and timeline outrage." },
-  { id: "rule_bluesky", name: "Bluesky", pattern: "bsky.app", category: "social", customMessage: "Another microblogging feed won't give you peace. Rest." },
-  { id: "rule_mastodon", name: "Mastodon", pattern: "mastodon.social", category: "social", customMessage: "Social timeline paused under your 3-day pledge." },
-  { id: "rule_linkedin", name: "LinkedIn", pattern: "linkedin.com", category: "social", customMessage: "Even 'productive' feeds are still dopamine traps after hours." },
-  { id: "rule_tumblr", name: "Tumblr", pattern: "tumblr.com", category: "social", customMessage: "Infinite scroll barrier active. Protect your focus." },
+  // --- 1. Adult & Pornography (24/7 Always) ---
+  { id: "rule_pornhub", name: "Pornhub", pattern: "pornhub.com", category: "adult", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "24/7 NSFW Shield Active. Protect your mind, discipline, and dignity." },
+  { id: "rule_xvideos", name: "XVideos", pattern: "xvideos.com", category: "adult", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "24/7 NSFW Shield Active. Protect your mind, discipline, and dignity." },
+  { id: "rule_xnxx", name: "XNXX", pattern: "xnxx.com", category: "adult", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "24/7 NSFW Shield Active. Protect your mind, discipline, and dignity." },
+  { id: "rule_xhamster", name: "xHamster (All Regions)", pattern: "xhamster.*", category: "adult", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "24/7 NSFW Shield Active. Protect your mind, discipline, and dignity." },
+  { id: "rule_redtube", name: "RedTube", pattern: "redtube.com", category: "adult", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "24/7 NSFW Shield Active. Protect your mind, discipline, and dignity." },
+  { id: "rule_youporn", name: "YouPorn", pattern: "youporn.com", category: "adult", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "24/7 NSFW Shield Active. Protect your mind, discipline, and dignity." },
+  { id: "rule_spankbang", name: "SpankBang", pattern: "spankbang.com", category: "adult", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "24/7 NSFW Shield Active. Protect your mind, discipline, and dignity." },
+  { id: "rule_eporner", name: "EPorner", pattern: "eporner.com", category: "adult", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "24/7 NSFW Shield Active. Protect your mind, discipline, and dignity." },
+  { id: "rule_hqporner", name: "HQPorner", pattern: "hqporner.com", category: "adult", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "24/7 NSFW Shield Active. Protect your mind, discipline, and dignity." },
+  { id: "rule_beeg", name: "Beeg", pattern: "beeg.com", category: "adult", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "24/7 NSFW Shield Active. Protect your mind, discipline, and dignity." },
+  { id: "rule_txxx", name: "TXXX", pattern: "txxx.com", category: "adult", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "24/7 NSFW Shield Active. Protect your mind, discipline, and dignity." },
+  { id: "rule_onlyfans", name: "OnlyFans", pattern: "onlyfans.com", category: "adult", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "24/7 NSFW Shield Active. Step back and guard your focus." },
+  { id: "rule_fansly", name: "Fansly", pattern: "fansly.com", category: "adult", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "24/7 NSFW Shield Active. Step back and guard your focus." },
+  { id: "rule_chaturbate", name: "Chaturbate", pattern: "chaturbate.com", category: "adult", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "24/7 NSFW Shield Active. Protect your peace." },
+  { id: "rule_stripchat", name: "Stripchat", pattern: "stripchat.com", category: "adult", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "24/7 NSFW Shield Active. Protect your peace." },
+  { id: "rule_bongacams", name: "BongaCams", pattern: "bongacams.com", category: "adult", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "24/7 NSFW Shield Active. Protect your peace." },
+  { id: "rule_rule34", name: "Rule34", pattern: "rule34.*", category: "adult", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "24/7 NSFW Shield Active. Step away from the screen." },
+  { id: "rule_nhentai", name: "nHentai", pattern: "nhentai.net", category: "adult", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "24/7 NSFW Shield Active. Step away from the screen." },
+  { id: "rule_hanime", name: "Hanime", pattern: "hanime.tv", category: "adult", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "24/7 NSFW Shield Active. Step away from the screen." },
+  { id: "rule_erome", name: "EroMe", pattern: "erome.com", category: "adult", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "24/7 NSFW Shield Active. Guard your attention." },
+  { id: "rule_fapello", name: "Fapello", pattern: "fapello.com", category: "adult", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "24/7 NSFW Shield Active. Guard your attention." },
+  { id: "rule_coomer", name: "Coomer", pattern: "coomer.su", category: "adult", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "24/7 NSFW Shield Active." },
+  { id: "rule_kemono", name: "Kemono", pattern: "kemono.su", category: "adult", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "24/7 NSFW Shield Active." },
+  { id: "rule_literotica", name: "Literotica", pattern: "literotica.com", category: "adult", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "24/7 NSFW Shield Active." },
+  { id: "rule_missav", name: "MissAV", pattern: "missav.*", category: "adult", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "24/7 NSFW Shield Active." },
+  { id: "rule_porncom", name: "Porn.com", pattern: "porn.com", category: "adult", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "24/7 NSFW Shield Active." },
+  { id: "rule_sexcom", name: "Sex.com", pattern: "sex.com", category: "adult", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "24/7 NSFW Shield Active." },
 
-  // --- Visual, Pins & Short-Form Video ---
-  { id: "rule_pinterest", name: "Pinterest (All Regions)", pattern: "pinterest.*", category: "video", customMessage: "Visual rabbit holes paused. Save your energy for real creation." },
-  { id: "rule_pinit", name: "Pinterest Shortlink", pattern: "pin.it", category: "video", customMessage: "Pinterest redirect intercepted under your 3-day lock." },
-  { id: "rule_tiktok", name: "TikTok", pattern: "tiktok.com", category: "video", customMessage: "Short-form dopamine loop blocked. Guard your attention span." },
-  { id: "rule_snapchat", name: "Snapchat Web", pattern: "snapchat.com", category: "video", customMessage: "Snaps and streaks can wait. Stay present." },
-  { id: "rule_youtube", name: "YouTube & Shorts", pattern: "youtube.com", category: "video", customMessage: "Avoid the autoplay rabbit hole. Rest your eyes." },
-  { id: "rule_youtu_be", name: "YouTube Shortlink", pattern: "youtu.be", category: "video", customMessage: "Video link paused under your focus commitment." },
-  { id: "rule_vimeo", name: "Vimeo", pattern: "vimeo.com", category: "video", customMessage: "Video consumption barrier active." },
-  { id: "rule_dailymotion", name: "Dailymotion", pattern: "dailymotion.com", category: "video", customMessage: "Video consumption barrier active." },
+  // --- 2. Movies, Streaming, Anime & Live Entertainment (24/7 Always) ---
+  { id: "rule_netflix", name: "Netflix", pattern: "netflix.com", category: "streaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Entertainment Shield Active. Choose real rest over binge-watching." },
+  { id: "rule_primevideo", name: "Prime Video", pattern: "primevideo.com", category: "streaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Entertainment Shield Active. Protect your valuable hours." },
+  { id: "rule_hotstar", name: "Disney+ Hotstar", pattern: "hotstar.com", category: "streaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Entertainment Shield Active. Step away and focus." },
+  { id: "rule_disneyplus", name: "Disney+", pattern: "disneyplus.com", category: "streaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Entertainment Shield Active." },
+  { id: "rule_jiocinema", name: "JioCinema", pattern: "jiocinema.com", category: "streaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Entertainment Shield Active." },
+  { id: "rule_sonyliv", name: "SonyLIV", pattern: "sonyliv.com", category: "streaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Entertainment Shield Active." },
+  { id: "rule_zee5", name: "ZEE5", pattern: "zee5.com", category: "streaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Entertainment Shield Active." },
+  { id: "rule_mxplayer", name: "MX Player", pattern: "mxplayer.in", category: "streaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Entertainment Shield Active." },
+  { id: "rule_hulu", name: "Hulu", pattern: "hulu.com", category: "streaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Entertainment Shield Active." },
+  { id: "rule_max", name: "Max (HBO)", pattern: "max.com", category: "streaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Entertainment Shield Active." },
+  { id: "rule_appletv", name: "Apple TV+", pattern: "tv.apple.com", category: "streaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Entertainment Shield Active." },
+  { id: "rule_tubi", name: "Tubi", pattern: "tubitv.com", category: "streaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Entertainment Shield Active." },
+  { id: "rule_crunchyroll", name: "Crunchyroll", pattern: "crunchyroll.com", category: "streaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Anime marathon blocked under your focus commitment." },
+  { id: "rule_hianime", name: "HiAnime", pattern: "hianime.*", category: "streaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Anime streaming blocked. Protect your focus." },
+  { id: "rule_aniwatch", name: "AniWatch", pattern: "aniwatch.*", category: "streaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Anime streaming blocked." },
+  { id: "rule_9anime", name: "9anime", pattern: "9anime.*", category: "streaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Anime streaming blocked." },
+  { id: "rule_gogoanime", name: "Gogoanime", pattern: "gogoanime.*", category: "streaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Anime streaming blocked." },
+  { id: "rule_fmovies", name: "FMovies", pattern: "fmovies.*", category: "streaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Movie streaming blocked." },
+  { id: "rule_123movies", name: "123Movies", pattern: "123movies.*", category: "streaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Movie streaming blocked." },
+  { id: "rule_cineb", name: "Cineb", pattern: "cineb.*", category: "streaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Movie streaming blocked." },
+  { id: "rule_moviesjoy", name: "MoviesJoy", pattern: "moviesjoy.*", category: "streaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Movie streaming blocked." },
+  { id: "rule_twitch", name: "Twitch", pattern: "twitch.tv", category: "streaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Livestreams paused. Live your own life instead." },
+  { id: "rule_kick", name: "Kick", pattern: "kick.com", category: "streaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Livestreams paused under your 3-day pledge." },
+  { id: "rule_rumble", name: "Rumble", pattern: "rumble.com", category: "streaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Video streaming blocked." },
+  { id: "rule_imdb", name: "IMDb", pattern: "imdb.com", category: "streaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Movie browsing rabbit hole paused." },
 
-  // --- Messaging & Community Escapism ---
-  { id: "rule_whatsapp", name: "WhatsApp Web", pattern: "web.whatsapp.com", category: "messaging", customMessage: "Curfew Active. Disconnect from chats, rest your mind, and recharge." },
-  { id: "rule_wa_me", name: "WhatsApp Direct", pattern: "wa.me", category: "messaging", customMessage: "Direct chat link paused under your commitment." },
-  { id: "rule_telegram", name: "Telegram Web", pattern: "telegram.org", category: "messaging", customMessage: "Channels and chats paused. Protect your quiet hours." },
-  { id: "rule_tme", name: "Telegram Links", pattern: "t.me", category: "messaging", customMessage: "Telegram redirect intercepted." },
-  { id: "rule_messenger", name: "Messenger", pattern: "messenger.com", category: "messaging", customMessage: "Messaging barrier active. Unplug for real rest." },
-  { id: "rule_discord", name: "Discord Web", pattern: "discord.com", category: "messaging", customMessage: "Servers and chats paused. Protect your deep focus." },
-  { id: "rule_discord_gg", name: "Discord Invites", pattern: "discord.gg", category: "messaging", customMessage: "Discord invite link paused under your 3-day pledge." },
+  // --- 3. Browser Games & Gaming Entertainment (24/7 Always) ---
+  { id: "rule_poki", name: "Poki Games", pattern: "poki.com", category: "gaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Browser gaming blocked. Focus on real goals." },
+  { id: "rule_crazygames", name: "CrazyGames", pattern: "crazygames.com", category: "gaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Browser gaming blocked." },
+  { id: "rule_coolmath", name: "Coolmath Games", pattern: "coolmathgames.com", category: "gaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Browser gaming blocked." },
+  { id: "rule_miniclip", name: "Miniclip", pattern: "miniclip.com", category: "gaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Browser gaming blocked." },
+  { id: "rule_y8", name: "Y8 Games", pattern: "y8.com", category: "gaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Browser gaming blocked." },
+  { id: "rule_friv", name: "Friv", pattern: "friv.com", category: "gaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Browser gaming blocked." },
+  { id: "rule_kongregate", name: "Kongregate", pattern: "kongregate.com", category: "gaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Browser gaming blocked." },
+  { id: "rule_newgrounds", name: "Newgrounds", pattern: "newgrounds.com", category: "gaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Entertainment portal blocked." },
+  { id: "rule_armorgames", name: "Armor Games", pattern: "armorgames.com", category: "gaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Browser gaming blocked." },
+  { id: "rule_krunker", name: "Krunker.io", pattern: "krunker.io", category: "gaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Web game blocked." },
+  { id: "rule_slither", name: "Slither.io", pattern: "slither.io", category: "gaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Web game blocked." },
+  { id: "rule_agar", name: "Agar.io", pattern: "agar.io", category: "gaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Web game blocked." },
+  { id: "rule_skribbl", name: "Skribbl.io", pattern: "skribbl.io", category: "gaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Web game blocked." },
+  { id: "rule_roblox", name: "Roblox", pattern: "roblox.com", category: "gaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Gaming blocked under your 3-day commitment." },
+  { id: "rule_steam", name: "Steam Community/Store", pattern: "steampowered.com", category: "gaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Gaming store blocked." },
+  { id: "rule_epic", name: "Epic Games", pattern: "epicgames.com", category: "gaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Gaming portal blocked." },
 
-  // --- Forums, Q&A & Meme Aggregators ---
-  { id: "rule_reddit", name: "Reddit", pattern: "reddit.com", category: "forums", customMessage: "Threads and rabbit holes paused. Step away from the screen." },
-  { id: "rule_redd_it", name: "Reddit Shortlink", pattern: "redd.it", category: "forums", customMessage: "Reddit link intercepted under your commitment." },
-  { id: "rule_quora", name: "Quora", pattern: "quora.com", category: "forums", customMessage: "Q&A doom-scrolling paused. Save your focus." },
-  { id: "rule_9gag", name: "9GAG", pattern: "9gag.com", category: "forums", customMessage: "Meme feed paused. Protect your dopamine balance." },
-  { id: "rule_imgur", name: "Imgur", pattern: "imgur.com", category: "forums", customMessage: "Image scroll barrier active." },
-  { id: "rule_4chan", name: "4chan", pattern: "4chan.org", category: "forums", customMessage: "Imageboard barrier active. Guard your peace." },
-  { id: "rule_ifunny", name: "iFunny", pattern: "ifunny.co", category: "forums", customMessage: "Meme consumption paused." },
+  // --- 4. Manga, Webtoons, Fanfic & Sports/Gossip Entertainment (24/7 Always) ---
+  { id: "rule_webtoons", name: "WEBTOON", pattern: "webtoons.com", category: "comics", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Comics & Webtoons paused. Guard your focus." },
+  { id: "rule_mangadex", name: "MangaDex", pattern: "mangadex.org", category: "comics", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Manga reading paused under your commitment." },
+  { id: "rule_mangakakalot", name: "Mangakakalot", pattern: "mangakakalot.com", category: "comics", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Manga reading paused." },
+  { id: "rule_manganato", name: "Manganato", pattern: "manganato.com", category: "comics", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Manga reading paused." },
+  { id: "rule_asura", name: "Asura Scans", pattern: "asuracomic.net", category: "comics", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Manga/Manhwa reading paused." },
+  { id: "rule_wattpad", name: "Wattpad", pattern: "wattpad.com", category: "comics", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Story consumption paused." },
+  { id: "rule_ao3", name: "Archive of Our Own", pattern: "archiveofourown.org", category: "comics", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Fanfiction rabbit hole paused." },
+  { id: "rule_boredpanda", name: "Bored Panda", pattern: "boredpanda.com", category: "comics", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Clickbait entertainment paused." },
+  { id: "rule_buzzfeed", name: "BuzzFeed", pattern: "buzzfeed.com", category: "comics", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Entertainment feeds paused." },
+  { id: "rule_cricbuzz", name: "Cricbuzz", pattern: "cricbuzz.com", category: "comics", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Sports distraction paused. Stay locked in." },
+  { id: "rule_espncricinfo", name: "ESPNcricinfo", pattern: "espncricinfo.com", category: "comics", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Sports distraction paused." },
 
-  // --- Streaming, Live Video & Binge ---
-  { id: "rule_twitch", name: "Twitch", pattern: "twitch.tv", category: "streaming", customMessage: "Livestreams paused. Live your own life instead." },
-  { id: "rule_kick", name: "Kick", pattern: "kick.com", category: "streaming", customMessage: "Livestreams paused under your 3-day pledge." },
-  { id: "rule_netflix", name: "Netflix", pattern: "netflix.com", category: "streaming", customMessage: "Binge barrier active. Choose rest over 'next episode'." },
-  { id: "rule_primevideo", name: "Prime Video", pattern: "primevideo.com", category: "streaming", customMessage: "Streaming barrier active. Protect your sleep." },
-  { id: "rule_hotstar", name: "Disney+ Hotstar", pattern: "hotstar.com", category: "streaming", customMessage: "Streaming barrier active. Step away and unwind." },
-  { id: "rule_disneyplus", name: "Disney+", pattern: "disneyplus.com", category: "streaming", customMessage: "Streaming barrier active." },
-  { id: "rule_jiocinema", name: "JioCinema", pattern: "jiocinema.com", category: "streaming", customMessage: "Streaming barrier active." },
-  { id: "rule_sonyliv", name: "SonyLIV", pattern: "sonyliv.com", category: "streaming", customMessage: "Streaming barrier active." },
-  { id: "rule_crunchyroll", name: "Crunchyroll", pattern: "crunchyroll.com", category: "streaming", customMessage: "Anime marathon paused. Honor your commitment." },
+  // --- 5. Visual, Pins & Short-Form Video Dopamine Traps ---
+  { id: "rule_yt_shorts", name: "YouTube Shorts (24/7)", pattern: "youtube.com/shorts", category: "video", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Short-form loops are permanently locked 24/7. Watch intentional long videos or step away." },
+  { id: "rule_fb_reel", name: "Facebook Reels (24/7)", pattern: "facebook.com/reel", category: "video", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Short-form loops are locked 24/7." },
+  { id: "rule_fb_watch", name: "Facebook Watch (24/7)", pattern: "facebook.com/watch", category: "video", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Video feed locked 24/7." },
+  { id: "rule_ig_reels", name: "Instagram Reels (24/7)", pattern: "instagram.com/reels", category: "video", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Reels loop locked 24/7." },
+  { id: "rule_pinterest", name: "Pinterest (All Regions)", pattern: "pinterest.*", category: "video", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Visual rabbit holes paused 24/7. Save your energy for real creation." },
+  { id: "rule_pinit", name: "Pinterest Shortlink", pattern: "pin.it", category: "video", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Pinterest redirect intercepted under your 3-day lock." },
+  { id: "rule_tiktok", name: "TikTok", pattern: "tiktok.com", category: "video", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Short-form dopamine loop blocked 24/7. Guard your attention span." },
+  { id: "rule_snapchat", name: "Snapchat Web", pattern: "snapchat.com", category: "video", defaultMode: "schedule", customMessage: "Snaps and streaks can wait. Stay present." },
+  { id: "rule_youtube", name: "YouTube (Night Curfew)", pattern: "youtube.com", category: "video", defaultMode: "schedule", customMessage: "Avoid the autoplay rabbit hole. Rest your eyes." },
+  { id: "rule_youtu_be", name: "YouTube Shortlink", pattern: "youtu.be", category: "video", defaultMode: "schedule", customMessage: "Video link paused under your focus commitment." },
+  { id: "rule_vimeo", name: "Vimeo", pattern: "vimeo.com", category: "video", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Video consumption barrier active." },
+  { id: "rule_dailymotion", name: "Dailymotion", pattern: "dailymotion.com", category: "video", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Video consumption barrier active." },
 
-  // --- Dating & Swipe Apps ---
-  { id: "rule_tinder", name: "Tinder Web", pattern: "tinder.com", category: "dating", customMessage: "Swiping paused. Protect your focus and energy." },
-  { id: "rule_bumble", name: "Bumble Web", pattern: "bumble.com", category: "dating", customMessage: "Swiping paused under your 3-day pledge." },
-  { id: "rule_hinge", name: "Hinge", pattern: "hinge.co", category: "dating", customMessage: "Dating app barrier active." }
+  // --- 6. Social Networks & Infinite Feeds ---
+  { id: "rule_instagram", name: "Instagram", pattern: "instagram.com", category: "social", defaultMode: "schedule", customMessage: "Step back from the feed. Protect your peace and attention." },
+  { id: "rule_facebook", name: "Facebook", pattern: "facebook.com", category: "social", defaultMode: "schedule", customMessage: "No endless feed scrolling. Reclaim your quiet time." },
+  { id: "rule_fb", name: "Facebook Shortlink", pattern: "fb.com", category: "social", defaultMode: "schedule", customMessage: "Social detour intercepted. Stay grounded." },
+  { id: "rule_threads_net", name: "Threads", pattern: "threads.net", category: "social", defaultMode: "schedule", customMessage: "Don't hop to another feed. Let your mind rest." },
+  { id: "rule_threads_com", name: "Threads (Alt)", pattern: "threads.com", category: "social", defaultMode: "schedule", customMessage: "Don't hop to another feed. Let your mind rest." },
+  { id: "rule_x", name: "X (Twitter)", pattern: "x.com", category: "social", defaultMode: "schedule", customMessage: "Step away from the noise and timeline outrage." },
+  { id: "rule_twitter", name: "Twitter (Legacy)", pattern: "twitter.com", category: "social", defaultMode: "schedule", customMessage: "Step away from the noise and timeline outrage." },
+  { id: "rule_bluesky", name: "Bluesky", pattern: "bsky.app", category: "social", defaultMode: "schedule", customMessage: "Another microblogging feed won't give you peace. Rest." },
+  { id: "rule_mastodon", name: "Mastodon", pattern: "mastodon.social", category: "social", defaultMode: "schedule", customMessage: "Social timeline paused under your 3-day pledge." },
+  { id: "rule_linkedin", name: "LinkedIn", pattern: "linkedin.com", category: "social", defaultMode: "schedule", customMessage: "Even 'productive' feeds are still dopamine traps after hours." },
+  { id: "rule_tumblr", name: "Tumblr", pattern: "tumblr.com", category: "social", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Infinite scroll barrier active. Protect your focus." },
+
+  // --- 7. Messaging & Community Escapism ---
+  { id: "rule_whatsapp", name: "WhatsApp Web", pattern: "web.whatsapp.com", category: "messaging", defaultMode: "schedule", customMessage: "Curfew Active. Disconnect from chats, rest your mind, and recharge." },
+  { id: "rule_wa_me", name: "WhatsApp Direct", pattern: "wa.me", category: "messaging", defaultMode: "schedule", customMessage: "Direct chat link paused under your commitment." },
+  { id: "rule_telegram", name: "Telegram Web", pattern: "telegram.org", category: "messaging", defaultMode: "schedule", customMessage: "Channels and chats paused. Protect your quiet hours." },
+  { id: "rule_tme", name: "Telegram Links", pattern: "t.me", category: "messaging", defaultMode: "schedule", customMessage: "Telegram redirect intercepted." },
+  { id: "rule_messenger", name: "Messenger", pattern: "messenger.com", category: "messaging", defaultMode: "schedule", customMessage: "Messaging barrier active. Unplug for real rest." },
+  { id: "rule_discord", name: "Discord Web", pattern: "discord.com", category: "messaging", defaultMode: "schedule", customMessage: "Servers and chats paused. Protect your deep focus." },
+  { id: "rule_discord_gg", name: "Discord Invites", pattern: "discord.gg", category: "messaging", defaultMode: "schedule", customMessage: "Discord invite link paused under your 3-day pledge." },
+
+  // --- 8. Forums, Q&A & Meme Aggregators ---
+  { id: "rule_reddit", name: "Reddit", pattern: "reddit.com", category: "forums", defaultMode: "schedule", customMessage: "Threads and rabbit holes paused. Step away from the screen." },
+  { id: "rule_redd_it", name: "Reddit Shortlink", pattern: "redd.it", category: "forums", defaultMode: "schedule", customMessage: "Reddit link intercepted under your commitment." },
+  { id: "rule_quora", name: "Quora", pattern: "quora.com", category: "forums", defaultMode: "schedule", customMessage: "Q&A doom-scrolling paused. Save your focus." },
+  { id: "rule_9gag", name: "9GAG", pattern: "9gag.com", category: "forums", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Meme feed paused 24/7. Protect your dopamine balance." },
+  { id: "rule_imgur", name: "Imgur", pattern: "imgur.com", category: "forums", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Image scroll barrier active 24/7." },
+  { id: "rule_4chan", name: "4chan", pattern: "4chan.org", category: "forums", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Imageboard barrier active 24/7. Guard your peace." },
+  { id: "rule_ifunny", name: "iFunny", pattern: "ifunny.co", category: "forums", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Meme consumption paused 24/7." },
+
+  // --- 9. Dating & Swipe Apps (24/7 Always) ---
+  { id: "rule_tinder", name: "Tinder Web", pattern: "tinder.com", category: "dating", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Swiping paused 24/7. Protect your focus and energy." },
+  { id: "rule_bumble", name: "Bumble Web", pattern: "bumble.com", category: "dating", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Swiping paused 24/7 under your 3-day pledge." },
+  { id: "rule_hinge", name: "Hinge", pattern: "hinge.co", category: "dating", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Dating app barrier active 24/7." }
 ];
 
 function buildCatalogRules(options = {}) {
   const now = Date.now();
-  const mode = options.mode || "schedule";
+  const forceGlobalMode = options.forceGlobalMode || null; // 'always' or null (respect item defaultMode)
   const startTime = options.startTime || "21:00";
   const endTime = options.endTime || "07:00";
 
@@ -76,7 +230,7 @@ function buildCatalogRules(options = {}) {
     pattern: item.pattern,
     category: item.category,
     enabled: true,
-    mode,
+    mode: forceGlobalMode || item.defaultMode || "schedule",
     startTime,
     endTime,
     days: [0, 1, 2, 3, 4, 5, 6],
@@ -91,7 +245,8 @@ function buildCatalogRules(options = {}) {
 function getDefaultState() {
   return {
     catalogVersion: CATALOG_VERSION,
-    rules: buildCatalogRules({ mode: "schedule", startTime: "21:00", endTime: "07:00" }),
+    nsfwGuardEnabled: true,
+    rules: buildCatalogRules({ startTime: "21:00", endTime: "07:00" }),
     globalCurfew: {
       enabled: true,
       startTime: "21:00",
@@ -128,19 +283,25 @@ async function initializeAndMigrateStorage() {
       const lockedUntil = r.lockedUntil || (createdAt + THREE_DAYS_MS);
       if (!r.createdAt || !r.lockedUntil) modified = true;
 
-      // Upgrade explicit 'pinterest.com' to multi-TLD 'pinterest.*' so regional Pinterest can't bypass
       let pattern = r.pattern;
       if (pattern && pattern.toLowerCase().replace(/^www\./, '').trim() === 'pinterest.com') {
         pattern = 'pinterest.*';
         modified = true;
       }
 
-      // Backfill category from catalog if missing
+      const clean = (pattern || "").toLowerCase().replace(/^www\./, '').trim();
+      const catalogMatch = SOCIAL_CONSUMPTION_CATALOG.find(c => c.pattern === clean);
+
       let category = r.category;
       if (!category) {
-        const clean = (pattern || "").toLowerCase().replace(/^www\./, '').trim();
-        const match = SOCIAL_CONSUMPTION_CATALOG.find(c => c.pattern === clean);
-        category = match ? match.category : "custom";
+        category = catalogMatch ? catalogMatch.category : "custom";
+        modified = true;
+      }
+
+      // Upgrade pure entertainment / adult / short-form items to 24/7 'always' mode if specified by catalog v3
+      let mode = r.mode;
+      if ((data.catalogVersion || 1) < CATALOG_VERSION && catalogMatch && catalogMatch.forceAlwaysOnUpgrade && mode !== 'always') {
+        mode = 'always';
         modified = true;
       }
 
@@ -148,6 +309,7 @@ async function initializeAndMigrateStorage() {
         ...r,
         pattern,
         category,
+        mode,
         createdAt,
         lockedUntil,
         renewalCount: r.renewalCount || 0,
@@ -155,13 +317,11 @@ async function initializeAndMigrateStorage() {
       };
     });
 
-    // Upgrade to Catalog v2: Merge all missing anti-escapism social & consumption links
     const currentCatalogVersion = data.catalogVersion || 1;
     if (currentCatalogVersion < CATALOG_VERSION) {
-      // Match the user's dominant existing mode (if they locked everything to 'always', use 'always'; else 'schedule')
       const alwaysCount = rules.filter(r => r.mode === 'always').length;
       const scheduleRule = rules.find(r => r.mode === 'schedule');
-      const dominantMode = (rules.length > 0 && alwaysCount === rules.length) ? 'always' : 'schedule';
+      const allAlways = (rules.length > 0 && alwaysCount === rules.length);
       const defaultStart = (scheduleRule && scheduleRule.startTime) || (data.globalCurfew && data.globalCurfew.startTime) || "21:00";
       const defaultEnd = (scheduleRule && scheduleRule.endTime) || (data.globalCurfew && data.globalCurfew.endTime) || "07:00";
 
@@ -177,7 +337,7 @@ async function initializeAndMigrateStorage() {
             pattern: item.pattern,
             category: item.category,
             enabled: true,
-            mode: dominantMode,
+            mode: allAlways ? 'always' : (item.defaultMode || 'schedule'),
             startTime: defaultStart,
             endTime: defaultEnd,
             days: [0, 1, 2, 3, 4, 5, 6],
@@ -196,10 +356,11 @@ async function initializeAndMigrateStorage() {
     const reflectionLogs = data.reflectionLogs || [];
     if (!data.reflectionLogs) modified = true;
 
-    if (modified || currentCatalogVersion < CATALOG_VERSION) {
+    if (modified || currentCatalogVersion < CATALOG_VERSION || data.nsfwGuardEnabled === undefined) {
       await chrome.storage.local.set({
         rules,
         reflectionLogs,
+        nsfwGuardEnabled: true,
         catalogVersion: CATALOG_VERSION
       });
     }
@@ -207,7 +368,7 @@ async function initializeAndMigrateStorage() {
 
   chrome.alarms.create("autonomousCheck", { periodInMinutes: 1 });
   await sweepOpenTabs();
-  console.log("ARE Cozy 3-Day Anti-Escapism Engine active with full social shield.");
+  console.log("ARE Cozy v2.2 Active: 24/7 NSFW Guard + All Entertainment & Social Shield (Normal & Incognito).");
 }
 
 chrome.runtime.onInstalled.addListener(() => {
@@ -245,7 +406,6 @@ function doesPatternMatch(hostname, pathname, rawPattern) {
   const pattern = (rawPattern || "").toLowerCase().replace(/^www\./, '').trim();
   if (!pattern) return false;
 
-  // Support trailing '.*' wildcard for multi-TLD platforms (e.g., pinterest.* -> pinterest.com, in.pinterest.com, pinterest.co.uk)
   if (pattern.endsWith('.*')) {
     const base = pattern.slice(0, -2);
     if (!base) return false;
@@ -260,7 +420,7 @@ function doesPatternMatch(hostname, pathname, rawPattern) {
   return hostname === pattern || hostname.endsWith('.' + pattern);
 }
 
-// Core Matching Engine
+// Core Matching Engine (Normal + Incognito)
 async function evaluateUrlAgainstRestrictions(targetUrl) {
   if (!targetUrl || targetUrl.startsWith('chrome://') || targetUrl.startsWith('chrome-extension://') || targetUrl.startsWith('about:') || targetUrl.startsWith('edge://')) {
     return { shouldBlock: false };
@@ -268,6 +428,25 @@ async function evaluateUrlAgainstRestrictions(targetUrl) {
 
   const { hostname, pathname } = normalizeUrl(targetUrl);
   const state = await chrome.storage.local.get(null);
+
+  // PRIORITY 0: Permanent 24/7 Built-in Adult / NSFW & Search Shield (Normal + Incognito)
+  if (state.nsfwGuardEnabled !== false) {
+    const nsfwCheck = isAdultOrNsfwUrl(targetUrl);
+    if (nsfwCheck.isAdult) {
+      return {
+        shouldBlock: true,
+        isPermanentShield: true,
+        rule: { id: "nsfw_builtin_shield", pattern: hostname },
+        isReviewDue: false,
+        reason: nsfwCheck.reason,
+        remainingMs: THREE_DAYS_MS,
+        lockedUntil: Date.now() + THREE_DAYS_MS,
+        commitmentRemainingMs: THREE_DAYS_MS,
+        message: "24/7 Pornography & NSFW Shield Active across Normal and Incognito windows. Protect your focus, energy, and clarity."
+      };
+    }
+  }
+
   const rules = state.rules || [];
   const focusLock = state.focusLock || {};
   const now = new Date();
@@ -281,9 +460,9 @@ async function evaluateUrlAgainstRestrictions(targetUrl) {
     if (!rule.enabled) continue;
 
     if (doesPatternMatch(hostname, pathname, rule.pattern)) {
-      // Check if user currently has an active 1-hour grace pass for this rule
+      // Skip only this specific rule if user has an active 1-hour grace pass (never skips adult heuristic or other rules)
       if (rule.graceExpiresAt && nowMs < rule.graceExpiresAt) {
-        return { shouldBlock: false };
+        continue;
       }
 
       // Check if the 3-day restriction period has elapsed -> trigger milestone review
@@ -302,7 +481,6 @@ async function evaluateUrlAgainstRestrictions(targetUrl) {
 
       const commitmentRemainingMs = Math.max(0, (rule.lockedUntil || 0) - nowMs);
 
-      // Focus Lock override
       if (isFocusLockActive) {
         return {
           shouldBlock: true,
@@ -316,7 +494,6 @@ async function evaluateUrlAgainstRestrictions(targetUrl) {
         };
       }
 
-      // Mode: Always
       if (rule.mode === 'always') {
         return {
           shouldBlock: true,
@@ -330,7 +507,6 @@ async function evaluateUrlAgainstRestrictions(targetUrl) {
         };
       }
 
-      // Mode: Countdown / Timer
       if (rule.mode === 'countdown') {
         if (rule.expiresAt && nowMs < rule.expiresAt) {
           return {
@@ -346,7 +522,6 @@ async function evaluateUrlAgainstRestrictions(targetUrl) {
         }
       }
 
-      // Mode: Schedule (Curfew / Timed window)
       if (rule.mode === 'schedule') {
         const days = rule.days || [0, 1, 2, 3, 4, 5, 6];
         const start = timeToMinutes(rule.startTime);
@@ -354,7 +529,6 @@ async function evaluateUrlAgainstRestrictions(targetUrl) {
         let inCurfew = false;
 
         if (start > end) {
-          // Overnight span (e.g. 21:00 to 07:00)
           if (currentMinutes >= start) {
             inCurfew = days.includes(currentDay);
           } else if (currentMinutes < end) {
@@ -362,7 +536,6 @@ async function evaluateUrlAgainstRestrictions(targetUrl) {
             inCurfew = days.includes(prevDay);
           }
         } else {
-          // Same day window (e.g. 09:00 to 18:00)
           inCurfew = days.includes(currentDay) && currentMinutes >= start && currentMinutes < end;
         }
 
@@ -385,10 +558,9 @@ async function evaluateUrlAgainstRestrictions(targetUrl) {
   return { shouldBlock: false };
 }
 
-// Debounce map to prevent double-counting stats when multiple navigation listeners trigger
+// Debounce map to prevent double-counting stats
 const recentTabBlocks = new Map();
 
-// Redirect tab to blocked page with rich contextual metadata
 async function enforceBlockOnTab(tabId, targetUrl, evaluation) {
   const now = Date.now();
   const lastBlock = recentTabBlocks.get(tabId) || 0;
@@ -410,6 +582,7 @@ async function enforceBlockOnTab(tabId, targetUrl, evaluation) {
   }
 
   const isReview = evaluation.isReviewDue ? "1" : "0";
+  const isPermanent = evaluation.isPermanentShield ? "1" : "0";
   const ruleId = evaluation.rule ? evaluation.rule.id : "";
   const lockedUntil = evaluation.lockedUntil || 0;
   const commitmentRemainingMs = evaluation.commitmentRemainingMs || 0;
@@ -420,6 +593,7 @@ async function enforceBlockOnTab(tabId, targetUrl, evaluation) {
     `&message=${encodeURIComponent(evaluation.message || "")}` +
     `&remaining=${encodeURIComponent(evaluation.remainingMs || 0)}` +
     `&review=${isReview}` +
+    `&permanent=${isPermanent}` +
     `&ruleId=${encodeURIComponent(ruleId)}` +
     `&lockedUntil=${lockedUntil}` +
     `&commitmentRemaining=${commitmentRemainingMs}`
@@ -428,7 +602,7 @@ async function enforceBlockOnTab(tabId, targetUrl, evaluation) {
   try {
     await chrome.tabs.update(tabId, { url: blockedPageUrl });
   } catch (e) {
-    // Tab may have been closed concurrently
+    // Tab may have closed concurrently
   }
 }
 
@@ -448,7 +622,7 @@ async function sweepOpenTabs() {
   }
 }
 
-// Layer 1: Pre-Navigation Interceptor
+// Layer 1: Pre-Navigation Interceptor (Normal + Incognito)
 chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
   if (details.frameId !== 0) return;
 
@@ -468,19 +642,17 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
   }
 });
 
-// Layer 3: Autonomous Periodic Watcher (Checks currently open tabs every minute)
+// Layer 3: Autonomous Periodic Watcher
 chrome.alarms.onAlarm.addListener(async (alarm) => {
   if (alarm.name === "autonomousCheck") {
     await sweepOpenTabs();
   }
 });
 
-// Clean up debounce entries when tabs close
 chrome.tabs.onRemoved.addListener((tabId) => {
   recentTabBlocks.delete(tabId);
 });
 
-// Helper to format remaining duration for error messages
 function formatRemainingTime(ms) {
   if (ms <= 0) return "0 minutes";
   const hours = Math.floor(ms / (1000 * 60 * 60));
@@ -491,13 +663,33 @@ function formatRemainingTime(ms) {
   return `${hours} hour(s) and ${mins} minute(s)`;
 }
 
+function checkIncognitoAllowed() {
+  return new Promise((resolve) => {
+    try {
+      if (chrome.extension && chrome.extension.isAllowedIncognitoAccess) {
+        chrome.extension.isAllowedIncognitoAccess((allowed) => resolve(!!allowed));
+      } else {
+        resolve(false);
+      }
+    } catch (e) {
+      resolve(false);
+    }
+  });
+}
+
 // Message Listener for Popup, Options, and Blocked Interceptor
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   (async () => {
     try {
       if (request.action === "GET_STATE") {
         const state = await chrome.storage.local.get(null);
-        sendResponse({ status: "success", state, catalogCount: SOCIAL_CONSUMPTION_CATALOG.length });
+        const incognitoAllowed = await checkIncognitoAllowed();
+        sendResponse({
+          status: "success",
+          state,
+          incognitoAllowed,
+          catalogCount: SOCIAL_CONSUMPTION_CATALOG.length
+        });
       }
 
       else if (request.action === "GET_CATALOG") {
@@ -551,10 +743,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           const existingIndex = rules.findIndex(r => r.pattern.toLowerCase().replace(/^www\./, '').trim() === cleanPattern);
           if (existingIndex !== -1) {
             const existing = rules[existingIndex];
+            const isLocked = existing.lockedUntil && now < existing.lockedUntil;
+            const nextMode = (isLocked && existing.mode === 'always' && reqRule.mode !== 'always') ? 'always' : (reqRule.mode || existing.mode);
             rules[existingIndex] = {
               ...existing,
               ...reqRule,
               id: existing.id,
+              mode: nextMode,
               pattern: cleanPattern,
               createdAt: existing.createdAt || now,
               lockedUntil: Math.max(existing.lockedUntil || 0, now + THREE_DAYS_MS),
@@ -579,8 +774,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       }
 
       else if (request.action === "ARM_FULL_SOCIAL_SHIELD") {
-        // Arms all 45 social, video, messaging, forum, streaming, and dating sites atomically
-        const mode = request.mode === "always" ? "always" : "schedule";
+        const requestedMode = request.mode === "always" ? "always" : "schedule";
         const startTime = request.startTime || "21:00";
         const endTime = request.endTime || "07:00";
         const days = Array.isArray(request.days) ? request.days : [0, 1, 2, 3, 4, 5, 6];
@@ -590,12 +784,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         const now = Date.now();
 
         for (const item of SOCIAL_CONSUMPTION_CATALOG) {
+          // Pure Adult & Entertainment never downgrade from 24/7 'always'
+          const itemMode = requestedMode === "always" ? "always" : (item.forceAlwaysOnUpgrade ? "always" : (item.defaultMode || "schedule"));
           const existingIndex = rules.findIndex(r => (r.pattern || "").toLowerCase().replace(/^www\./, '').trim() === item.pattern);
+
           if (existingIndex !== -1) {
             const existing = rules[existingIndex];
-            // Never weaken an existing 'always' rule down to 'schedule' during an active 3-day lock
             const isLocked = existing.lockedUntil && now < existing.lockedUntil;
-            const nextMode = (isLocked && existing.mode === 'always' && mode !== 'always') ? 'always' : mode;
+            const nextMode = (isLocked && existing.mode === 'always' && itemMode !== 'always') ? 'always' : itemMode;
             rules[existingIndex] = {
               ...existing,
               category: item.category,
@@ -613,7 +809,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
               pattern: item.pattern,
               category: item.category,
               enabled: true,
-              mode,
+              mode: itemMode,
               startTime,
               endTime,
               days,
@@ -626,7 +822,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           }
         }
 
-        await chrome.storage.local.set({ rules, catalogVersion: CATALOG_VERSION });
+        await chrome.storage.local.set({ rules, nsfwGuardEnabled: true, catalogVersion: CATALOG_VERSION });
         await sweepOpenTabs();
         sendResponse({ status: "success", rules, count: rules.length });
       }
@@ -644,7 +840,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         const now = Date.now();
         const isLocked = existing.lockedUntil && now < existing.lockedUntil;
 
-        // Anti-Tamper 3-Day Lock Rule: User CANNOT disable or weaken during the 3-day commitment period
         if (isLocked) {
           const timeLeft = formatRemainingTime(existing.lockedUntil - now);
           if (existing.enabled && !request.rule.enabled) {
@@ -663,7 +858,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           }
         }
 
-        // Strict Mode Focus Lock Guard
         if (state.strictMode && state.focusLock && state.focusLock.active && now < state.focusLock.expiresAt && !request.rule.enabled) {
           sendResponse({
             status: "error",

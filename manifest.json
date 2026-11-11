@@ -1,8 +1,9 @@
 {
   "manifest_version": 3,
   "name": "ARE - Autonomous Restrictor Engine",
-  "version": "2.1.0",
-  "description": "ARE (Autonomous Restrictor Engine) — Cozy cognitive shield, 3-day focus commitment protocol, and mindful intent audit.",
+  "version": "2.2.0",
+  "description": "ARE (Autonomous Restrictor Engine) — Cozy cognitive shield, 24/7 NSFW & entertainment barrier (Normal + Incognito), 3-day focus commitment protocol, and mindful intent audit.",
+  "incognito": "spanning",
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",

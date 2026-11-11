@@ -41,6 +41,19 @@ async function loadState() {
     if (!response || !response.state) return;
     const state = response.state;
 
+    // Render Incognito Status
+    const incogBadge = document.getElementById('popupIncognitoBadge');
+    if (incogBadge) {
+      if (response.incognitoAllowed) {
+        incogBadge.textContent = "🕵️ Incognito: ACTIVE";
+        incogBadge.className = "guard-pill guard-on";
+      } else {
+        incogBadge.textContent = "⚠️ Incognito: OFF";
+        incogBadge.className = "guard-pill guard-warn";
+        incogBadge.title = "Enable 'Allow in Incognito' in chrome://extensions -> ARE -> Details";
+      }
+    }
+
     // Render Stats
     const stats = state.stats || {};
     document.getElementById('todayBlockedCount').textContent = stats.todayBlocked || 0;

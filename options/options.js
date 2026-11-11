@@ -85,6 +85,23 @@ function loadBentoData() {
     if (!res || !res.state) return;
     const { rules, stats, strictMode, focusLock, reflectionLogs } = res.state;
 
+    // Incognito Shield Status
+    const incogPill = document.getElementById('incognitoStatusPill');
+    if (incogPill) {
+      if (res.incognitoAllowed) {
+        incogPill.textContent = "🕵️ INCOGNITO GUARD: ON";
+        incogPill.style.color = "var(--sage-green)";
+        incogPill.style.borderColor = "var(--sage-border)";
+        incogPill.style.background = "var(--sage-light)";
+      } else {
+        incogPill.textContent = "⚠️ INCOGNITO GUARD: OFF";
+        incogPill.style.color = "var(--amber-honey)";
+        incogPill.style.borderColor = "var(--amber-border)";
+        incogPill.style.background = "var(--amber-light)";
+        incogPill.title = "Enable 'Allow in Incognito' under chrome://extensions -> ARE -> Details";
+      }
+    }
+
     // Metrics
     const st = stats || { totalBlocked: 0, todayBlocked: 0 };
     document.getElementById('bentoTodayBlocked').textContent = st.todayBlocked || 0;
@@ -488,7 +505,7 @@ function setupBentoPresets() {
   });
 
   document.getElementById('presetTotalBlackoutBtn')?.addEventListener('click', () => {
-    if (confirm("🔒 Activate 24/7 Total Dopamine Blackout?\n\nThis locks ALL 45 social media, messaging, video, meme, forum, and streaming platforms 24/7 for 3 full days (72 hours). You will NOT be able to unlock or delete them early.")) {
+    if (confirm("🔒 Activate 24/7 Total Dopamine Blackout?\n\nThis locks ALL adult, entertainment, gaming, streaming, social media, messaging, and forum platforms 24/7 for 3 full days (72 hours) across Normal and Incognito. You will NOT be able to unlock or delete them early.")) {
       armFullSocialShield("always", "24/7 Total Dopamine Blackout Armed");
     }
   });

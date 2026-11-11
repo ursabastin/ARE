@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const reason = params.get('reason') || 'Scheduled Restriction';
   const message = params.get('message') || 'Protecting your focus, sleep cycle, and mental tranquility.';
   const isReview = params.get('review') === '1';
+  const isPermanent = params.get('permanent') === '1';
   const ruleId = params.get('ruleId') || '';
   const lockedUntil = parseInt(params.get('lockedUntil') || '0', 10);
   const commitmentRemaining = parseInt(params.get('commitmentRemaining') || '0', 10);
@@ -25,10 +26,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const reviewDomainElem = document.getElementById('reviewDomainName');
   if (reviewDomainElem) reviewDomainElem.textContent = domain;
 
-  if (isReview) {
+  if (isReview && !isPermanent) {
     initReviewView(ruleId, domain, targetUrl);
   } else {
-    initActiveLockView(reason, message, lockedUntil, commitmentRemaining);
+    initActiveLockView(reason, message, lockedUntil, commitmentRemaining, isPermanent);
   }
 
   // Global button handlers
@@ -38,8 +39,8 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-// View 1: Active 3-Day Lock
-function initActiveLockView(reason, message, lockedUntil, commitmentRemaining) {
+// View 1: Active 3-Day / Permanent Lock
+function initActiveLockView(reason, message, lockedUntil, commitmentRemaining, isPermanent) {
   document.getElementById('activeLockView').style.display = 'block';
   document.getElementById('reviewView').style.display = 'none';
 
@@ -49,8 +50,16 @@ function initActiveLockView(reason, message, lockedUntil, commitmentRemaining) {
   const quoteElem = document.getElementById('quoteText');
   if (quoteElem && message) quoteElem.textContent = `“${message}”`;
 
-  // Countdown timer
   const countdownElem = document.getElementById('lockCountdown');
+
+  if (isPermanent) {
+    const badgeText = document.getElementById('shieldBadgeText');
+    if (badgeText) badgeText.textContent = "24/7 NSFW Guard Active";
+    if (countdownElem) countdownElem.textContent = "PERMANENT 24/7 LOCK (NORMAL & INCOGNITO)";
+    return;
+  }
+
+  // Countdown timer
   const targetTime = lockedUntil > 0 ? lockedUntil : (Date.now() + commitmentRemaining);
 
   function tick() {

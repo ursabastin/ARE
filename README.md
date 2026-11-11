@@ -125,23 +125,29 @@ All submissions are permanently recorded in the **Reflection & Intent Audit Vaul
 
 ## ⚡ Core Features
 
-* **🛡️ 45-Platform Anti-Escapism Social & Consumption Shield:**
-  * Eliminates platform-hopping! When your main apps are blocked, ARE ensures you cannot run away to secondary feeds or dopamine traps:
-    * **Social Feeds:** `instagram.com`, `facebook.com`, `fb.com`, `threads.net`, `threads.com`, `x.com`, `twitter.com`, `bsky.app`, `mastodon.social`, `linkedin.com`, `tumblr.com`
-    * **Visual & Short Video:** `pinterest.*` (all regional domains), `pin.it`, `tiktok.com`, `snapchat.com`, `youtube.com`, `youtu.be`, `vimeo.com`, `dailymotion.com`
-    * **Messaging & Communities:** `web.whatsapp.com`, `wa.me`, `telegram.org` (`web.telegram.org`), `t.me`, `messenger.com`, `discord.com`, `discord.gg`
-    * **Forums, Q&A & Memes:** `reddit.com`, `redd.it`, `quora.com`, `9gag.com`, `imgur.com`, `4chan.org`, `ifunny.co`
-    * **Streaming & Binge:** `twitch.tv`, `kick.com`, `netflix.com`, `primevideo.com`, `hotstar.com`, `disneyplus.com`, `jiocinema.com`, `sonyliv.com`, `crunchyroll.com`
-    * **Dating / Swiping:** `tinder.com`, `bumble.com`, `hinge.co`
+* **🔞 24/7 Pornography & NSFW Shield (Normal + Incognito):**
+  * Uses `"incognito": "spanning"` in `manifest.json` so protection runs continuously across both normal and Incognito/InPrivate windows.
+  * Combines explicit adult domain rules with a permanent **Priority-0 Heuristic & Search Safe-Guard** blocking adult TLDs (`.xxx`, `.porn`, `.sex`, `.adult`, `.sexy`), unambiguous adult hostnames/mirrors, NSFW subreddits, and explicit search queries on Google, Bing, DuckDuckGo, Yahoo, Brave, and Yandex.
+* **🎬 24/7 Total Entertainment & Short-Form Lockout:**
+  * Blocks **all kinds of digital entertainment** around the clock under the 3-day lock:
+    * **Streaming, Anime & Movies:** Netflix, Prime Video, Hotstar, Disney+, JioCinema, SonyLIV, ZEE5, Hulu, Max, Crunchyroll, Twitch, Kick, HiAnime, AniWatch, 9anime, FMovies, 123Movies, IMDb.
+    * **Browser Games & Gaming Portals:** Poki, CrazyGames, Coolmath Games, Miniclip, Y8, Friv, Kongregate, Krunker, Slither, Agar, Roblox, Steam, Epic Games.
+    * **Comics, Manga & Entertainment Feeds:** WEBTOON, MangaDex, Asura, Wattpad, AO3, Bored Panda, BuzzFeed, Cricbuzz, ESPNcricinfo, 9GAG, Imgur, 4chan.
+    * **Short-Form Loops (24/7 Path Blocking):** `youtube.com/shorts`, `instagram.com/reels`, `facebook.com/reel`, `facebook.com/watch`, `tiktok.com`, `pinterest.*`, `pin.it`.
+* **🌐 Full Anti-Escapism Social & Chat Shield:**
+  * **Social Feeds:** `instagram.com`, `facebook.com`, `fb.com`, `threads.net`, `threads.com`, `x.com`, `twitter.com`, `bsky.app`, `mastodon.social`, `linkedin.com`, `tumblr.com`
+  * **Messaging & Communities:** `web.whatsapp.com`, `wa.me`, `telegram.org` (`web.telegram.org`), `t.me`, `messenger.com`, `discord.com`, `discord.gg`
+  * **Forums & Q&A:** `reddit.com`, `redd.it`, `quora.com`
+  * **Dating / Swiping:** `tinder.com`, `bumble.com`, `hinge.co`
 * **🌙 Autonomous 9:00 PM Bedtime Curfew & 24/7 Blackout Option:**
-  * Runs nightly (`21:00` to `07:00`) with triple-layer interception (`webNavigation`, `tabs.onUpdated`, and 60s `chrome.alarms` tab sweeps).
-  * Includes a one-click **24/7 Total Dopamine Blackout** preset in ARE Studio to lock all 45 platforms continuously for 3 days.
+  * Triple-layer interception (`webNavigation`, `tabs.onUpdated`, and 60s `chrome.alarms` tab sweeps) plus live **Incognito Guard** status badge in Popup and ARE Studio.
+  * Includes a one-click **24/7 Total Dopamine Blackout** preset in ARE Studio to lock every platform continuously for 3 days.
 * **☕ Focus Sprint Lock:**
   * Quick-launch deep work chips (`25m`, `45m`, `60m`, `2h`) with a live countdown display.
 * **🛡️ Strict Mode Armor:**
   * Prevents modifying rules or disabling focus sprints during active curfew hours.
 * **📊 Reflection & Intent Audit Vault:**
-  * View, analyze, or clear logged reflection history and intent data, plus search and filter rules by category.
+  * View, analyze, or clear logged reflection history and intent data, plus search and filter rules across all categories.
 * **🍱 Apple Bento Grid Studio:**
   * Live ticking telemetry clock, active protocol pills, and modular restriction forges.
 
