@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ARE Analytics | Behavioral Telemetry & Focus Impact</title>
+  <link rel="stylesheet" href="analytics.css">
+</head>
+<body>
+  <div class="analytics-shell">
+
+    <!-- Top Product Header -->
+    <header class="analytics-header">
+      <div class="brand-group">
+        <div class="logo-box">
+          <img src="../icons/icon48.png" alt="ARE Logo" class="brand-logo-img">
+        </div>
+        <div>
+          <div class="brand-title-row">
+            <h1 class="brand-name">ARE Analytics</h1>
+            <span class="badge-saas">TELEMETRY ENGINE v2.2</span>
+          </div>
+          <p class="brand-tagline">Behavioral Urge Intelligence • Focus ROI • Anti-Escapism Product Insights</p>
+        </div>
+      </div>
+
+      <div class="header-controls">
+        <!-- Data Mode Switcher: Live vs Demo Showcase -->
+        <div class="mode-switcher" role="group" aria-label="Analytics data mode">
+          <button type="button" class="mode-btn active" id="btnModeLive" data-mode="live">● Live Local Data</button>
+          <button type="button" class="mode-btn" id="btnModeDemo" data-mode="demo">✨ Product Demo Preview</button>
+        </div>
+
+        <button type="button" class="btn btn-secondary" id="exportReportBtn">Export JSON ↓</button>
+        <a href="../options/options.html" class="btn btn-sage">← ARE Studio</a>
+      </div>
+    </header>
+
+    <!-- Showcase Banner (Visible in Demo Mode) -->
+    <div id="demoBanner" class="demo-banner" style="display: none;">
+      <span>✨ <strong>PRODUCT SHOWCASE PREVIEW:</strong> Displaying an illustrative 14-day multi-category dataset to demonstrate ARE's behavioral telemetry & SaaS insights. Click <strong>"● Live Local Data"</strong> anytime to view your actual local browser stats.</span>
+    </div>
+
+    <!-- Master Analytics Grid -->
+    <main class="analytics-grid">
+
+      <!-- KPI Pod 1: Time Reclaimed & 1-Year Projection -->
+      <section class="kpi-card col-span-3">
+        <div class="kpi-head">
+          <span class="kpi-label">TIME RECLAIMED</span>
+          <span class="kpi-icon sage">⏳</span>
+        </div>
+        <div class="kpi-value" id="kpiHoursSaved">0.0 hrs</div>
+        <div class="kpi-sub" id="kpiYearProjection">Annualized pace: 0 hrs / year</div>
+      </section>
+
+      <!-- KPI Pod 2: Total Interceptions (Normal vs Incognito) -->
+      <section class="kpi-card col-span-3">
+        <div class="kpi-head">
+          <span class="kpi-label">TOTAL INTERCEPTIONS</span>
+          <span class="kpi-icon amber">🛡️</span>
+        </div>
+        <div class="kpi-value" id="kpiTotalBlocks">0</div>
+        <div class="kpi-sub" id="kpiIncognitoSplit">Normal: 0 • Incognito: 0</div>
+      </section>
+
+      <!-- KPI Pod 3: Impulse Defeat Rate -->
+      <section class="kpi-card col-span-3">
+        <div class="kpi-head">
+          <span class="kpi-label">IMPULSE DEFEAT RATE</span>
+          <span class="kpi-icon blue">🧠</span>
+        </div>
+        <div class="kpi-value" id="kpiDefeatRate">100%</div>
+        <div class="kpi-sub" id="kpiCommitmentsHonored">0 3-Day Pledges Honored</div>
+      </section>
+
+      <!-- KPI Pod 4: Active Shield Armor -->
+      <section class="kpi-card col-span-3">
+        <div class="kpi-head">
+          <span class="kpi-label">ACTIVE SHIELD ARMOR</span>
+          <span class="kpi-icon rose">🔒</span>
+        </div>
+        <div class="kpi-value" id="kpiActiveRules">0 Sites</div>
+        <div class="kpi-sub" id="kpiIncognitoHealth">24/7 NSFW + Incognito Check</div>
+      </section>
+
+      <!-- Chart 1: 24-Hour Urge Vulnerability Heatmap (Span 7) -->
+      <section class="panel-card col-span-7">
+        <div class="panel-header">
+          <div>
+            <span class="panel-badge badge-amber">CIRCADIAN BEHAVIORAL MAP</span>
+            <h2>24-Hour Urge Vulnerability Heatmap</h2>
+          </div>
+          <span class="insight-pill" id="peakHourInsight">Peak Risk: —</span>
+        </div>
+        <p class="panel-desc">
+          Identifies the exact hours of the day when habit reflexes trigger restricted sites. Amber bars highlight the Night Curfew window (21:00–07:00).
+        </p>
+
+        <div class="heatmap-container" id="hourlyHeatmap">
+          <!-- 24 hourly bars rendered via JS -->
+        </div>
+        <div class="heatmap-legend">
+          <span><i class="legend-dot sage"></i> Daytime (07:00 – 20:59)</span>
+          <span><i class="legend-dot amber"></i> Night Curfew Danger Zone (21:00 – 06:59)</span>
+        </div>
+      </section>
+
+      <!-- Chart 2: Escapism Category Distribution (Span 5) -->
+      <section class="panel-card col-span-5">
+        <div class="panel-header">
+          <div>
+            <span class="panel-badge badge-rose">ESCAPE ROUTE BREAKDOWN</span>
+            <h2>Blocked Attempts by Category</h2>
+          </div>
+        </div>
+        <p class="panel-desc">
+          Reveals where your attention tries to escape when primary apps are blocked.
+        </p>
+
+        <div class="category-bars-list" id="categoryBreakdownList">
+          <!-- Rendered via JS -->
+        </div>
+      </section>
+
+      <!-- Chart 3: 14-Day Interceptions & Saved Time Trend (Span 7) -->
+      <section class="panel-card col-span-7">
+        <div class="panel-header">
+          <div>
+            <span class="panel-badge badge-sage">14-DAY TRAJECTORY</span>
+            <h2>Daily Interceptions & Focus Minutes</h2>
+          </div>
+          <span class="insight-pill" id="avgDailyInsight">Avg: 0 / day</span>
+        </div>
+        <p class="panel-desc">
+          Tracks how reflexive urges fade as your 3-day locks compound across days.
+        </p>
+
+        <div class="trend-chart-wrap" id="dailyTrendChart">
+          <!-- Rendered via JS -->
+        </div>
+      </section>
+
+      <!-- Panel 4: Top Temptation Leaderboard (Span 5) -->
+      <section class="panel-card col-span-5">
+        <div class="panel-header">
+          <div>
+            <span class="panel-badge badge-blue">TOP REFLEX TRIGGERS</span>
+            <h2>Most-Intercepted Domains</h2>
+          </div>
+        </div>
+        <p class="panel-desc">
+          Your strongest muscle-memory URLs stopped before loading.
+        </p>
+
+        <ul class="leaderboard-list" id="topDomainsList">
+          <!-- Rendered via JS -->
+        </ul>
+      </section>
+
+      <!-- Panel 5: 7-Step Psychological Audit Intelligence (Span 12) -->
+      <section class="panel-card col-span-12">
+        <div class="panel-header">
+          <div>
+            <span class="panel-badge badge-lavender">7-STEP REFLECTION DATA</span>
+            <h2>Psychological Trigger & Emotional Audit Intelligence</h2>
+          </div>
+          <span class="insight-pill" id="auditCountBadge">0 Audits Logged</span>
+        </div>
+        <p class="panel-desc">
+          Real self-awareness telemetry aggregated from the 7-step follow-up checks completed after 3-day milestones.
+        </p>
+
+        <div class="psych-grid" id="psychInsightsGrid">
+          <!-- 3 sub-cards: Emotional State, Root Triggers, Final Verified Outcomes -->
+        </div>
+      </section>
+
+      <!-- Panel 6: Product Vision & SaaS Cloud Platform Roadmap (Span 12) -->
+      <section class="panel-card saas-vision-card col-span-12">
+        <div class="saas-header-row">
+          <div>
+            <span class="panel-badge badge-amber">SAAS PRODUCT PLATFORM ROADMAP</span>
+            <h2>ARE Cloud • Subscription Accountability Architecture</h2>
+            <p class="panel-desc" style="margin-bottom: 0;">
+              Built to scale from a zero-dependency local Chromium guardian into an affordable micro-subscription SaaS web platform synced seamlessly with this browser extension.
+            </p>
+          </div>
+          <div class="pricing-preview-badge">
+            <span class="price-tag">$3 / mo</span>
+            <span class="price-sub">Planned Pro Cloud Tier</span>
+          </div>
+        </div>
+
+        <div class="saas-pillars-grid">
+          <div class="saas-pillar">
+            <span class="pillar-icon">☁️</span>
+            <h3>Cross-Device Cloud Sync</h3>
+            <p>Connect desktop Chromium browsers, mobile companions, and web dashboards to enforce unified 3-day locks and mirror analytics everywhere.</p>
+          </div>
+
+          <div class="saas-pillar">
+            <span class="pillar-icon">🤝</span>
+            <h3>Accountability Partner Lock</h3>
+            <p>Prevent late-night extension removal with cloud heartbeat pings and an optional accountability partner email/PIN approval gate.</p>
+          </div>
+
+          <div class="saas-pillar">
+            <span class="pillar-icon">📊</span>
+            <h3>Weekly Behavioral Digest</h3>
+            <p>Automated weekly PDF/email reports translating your 24-hour urge heatmap and 7-step psychological audits into actionable clarity metrics.</p>
+          </div>
+
+          <div class="saas-pillar">
+            <span class="pillar-icon">🏢</span>
+            <h3>Student & Deep-Work Cohorts</h3>
+            <p>Shared study sprints, verified focus hours leaderboards, and low-cost student packs designed for sustained annual transformation.</p>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="analytics.js"></script>
+</body>
+</html>

@@ -1,0 +1,653 @@
+/* ==========================================================================
+   ARE Analytics Dashboard — Cozy SaaS Behavioral Telemetry Design System
+   Style: Warm Linen, Forest Sage, Honey Amber & Clean Data Visualization
+   ========================================================================== */
+
+:root {
+  --bg-canvas: #faf7f2;
+  --bg-card: #ffffff;
+  --bg-card-subtle: #f6f2ea;
+  --border-warm: #e8e0d4;
+  --border-warm-strong: #d2c7b7;
+
+  --text-primary: #292524;
+  --text-secondary: #57534e;
+  --text-muted: #857e75;
+
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: 'SF Mono', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+
+  --sage-green: #3f6212;
+  --sage-light: #f0fdf4;
+  --sage-border: #bbf7d0;
+
+  --amber-honey: #b45309;
+  --amber-bright: #d97706;
+  --amber-light: #fffbeb;
+  --amber-border: #fde68a;
+
+  --terracotta: #be123c;
+  --terracotta-light: #fff1f2;
+  --terracotta-border: #fecdd3;
+
+  --blue-soft: #0369a1;
+  --blue-light: #f0f9ff;
+  --blue-border: #bae6fd;
+
+  --lavender: #6d28d9;
+  --lavender-light: #f5f3ff;
+  --lavender-border: #ddd6fe;
+
+  --shadow-cozy: 0 4px 18px rgba(41, 37, 36, 0.04), 0 1px 3px rgba(41, 37, 36, 0.02);
+  --radius-card: 16px;
+  --radius-inner: 10px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-canvas);
+  background-image: radial-gradient(at 0% 0%, rgba(217, 119, 6, 0.03) 0px, transparent 50%),
+                    radial-gradient(at 100% 0%, rgba(63, 98, 18, 0.04) 0px, transparent 45%);
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  min-height: 100vh;
+  padding: 28px 20px 48px;
+  line-height: 1.5;
+}
+
+.analytics-shell {
+  max-width: 1220px;
+  margin: 0 auto;
+}
+
+/* Header */
+.analytics-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.brand-group {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.logo-box {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  background: var(--sage-light);
+  border: 1px solid var(--sage-border);
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brand-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 6px;
+}
+
+.brand-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.brand-name {
+  font-size: 21px;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+.badge-saas {
+  font-size: 10px;
+  font-weight: 700;
+  background: var(--blue-light);
+  border: 1px solid var(--blue-border);
+  color: var(--blue-soft);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.brand-tagline {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.header-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.mode-switcher {
+  display: inline-flex;
+  background: var(--bg-card-subtle);
+  border: 1px solid var(--border-warm);
+  border-radius: 10px;
+  padding: 3px;
+}
+
+.mode-btn {
+  font-family: var(--font-family);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 7px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mode-btn.active {
+  background: var(--bg-card);
+  color: var(--text-primary);
+  box-shadow: 0 1px 4px rgba(41, 37, 36, 0.08);
+}
+
+.btn {
+  font-family: var(--font-family);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.btn-sage { background: var(--sage-green); color: #ffffff; }
+.btn-sage:hover { background: #365314; }
+
+.btn-secondary {
+  background: var(--bg-card);
+  border-color: var(--border-warm);
+  color: var(--text-secondary);
+}
+.btn-secondary:hover { background: var(--bg-card-subtle); }
+
+/* Demo Banner */
+.demo-banner {
+  background: var(--amber-light);
+  border: 1px solid var(--amber-border);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 13px;
+  color: var(--amber-honey);
+  margin-bottom: 18px;
+}
+
+/* Grid System */
+.analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 16px;
+}
+
+.col-span-3 { grid-column: span 3; }
+.col-span-5 { grid-column: span 5; }
+.col-span-7 { grid-column: span 7; }
+.col-span-12 { grid-column: span 12; }
+
+/* KPI Pods */
+.kpi-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-warm);
+  border-radius: var(--radius-card);
+  padding: 20px;
+  box-shadow: var(--shadow-cozy);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.kpi-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.kpi-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  color: var(--text-muted);
+}
+
+.kpi-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.kpi-icon.sage { background: var(--sage-light); border: 1px solid var(--sage-border); }
+.kpi-icon.amber { background: var(--amber-light); border: 1px solid var(--amber-border); }
+.kpi-icon.blue { background: var(--blue-light); border: 1px solid var(--blue-border); }
+.kpi-icon.rose { background: var(--terracotta-light); border: 1px solid var(--terracotta-border); }
+
+.kpi-value {
+  font-family: var(--font-mono);
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+.kpi-sub {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* Panel Cards */
+.panel-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-warm);
+  border-radius: var(--radius-card);
+  padding: 24px;
+  box-shadow: var(--shadow-cozy);
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.panel-header h2 {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.panel-badge {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 2px 7px;
+  border-radius: 4px;
+  margin-bottom: 4px;
+}
+
+.badge-sage { background: var(--sage-light); color: var(--sage-green); border: 1px solid var(--sage-border); }
+.badge-amber { background: var(--amber-light); color: var(--amber-honey); border: 1px solid var(--amber-border); }
+.badge-rose { background: var(--terracotta-light); color: var(--terracotta); border: 1px solid var(--terracotta-border); }
+.badge-blue { background: var(--blue-light); color: var(--blue-soft); border: 1px solid var(--blue-border); }
+.badge-lavender { background: var(--lavender-light); color: var(--lavender); border: 1px solid var(--lavender-border); }
+
+.insight-pill {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--bg-card-subtle);
+  border: 1px solid var(--border-warm);
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.panel-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 18px;
+}
+
+/* 24-Hour Heatmap Chart */
+.heatmap-container {
+  display: grid;
+  grid-template-columns: repeat(24, 1fr);
+  gap: 4px;
+  height: 170px;
+  align-items: end;
+  padding: 12px 8px 6px;
+  background: var(--bg-card-subtle);
+  border: 1px solid var(--border-warm);
+  border-radius: var(--radius-inner);
+}
+
+.hour-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  gap: 4px;
+}
+
+.hour-bar {
+  width: 100%;
+  min-height: 4px;
+  border-radius: 4px 4px 2px 2px;
+  transition: height 0.3s ease;
+  position: relative;
+}
+
+.hour-bar.day { background: var(--sage-green); opacity: 0.85; }
+.hour-bar.curfew { background: var(--amber-bright); opacity: 0.9; }
+.hour-bar.empty { background: var(--border-warm); opacity: 0.5; height: 4px !important; }
+
+.hour-bar:hover { opacity: 1; filter: brightness(1.08); }
+
+.hour-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-muted);
+}
+
+.heatmap-legend {
+  display: flex;
+  gap: 18px;
+  margin-top: 10px;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.legend-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 3px;
+  margin-right: 4px;
+}
+.legend-dot.sage { background: var(--sage-green); }
+.legend-dot.amber { background: var(--amber-bright); }
+
+/* Category Breakdown Bars */
+.category-bars-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cat-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cat-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.cat-name { color: var(--text-primary); }
+.cat-count { font-family: var(--font-mono); color: var(--text-secondary); font-size: 11px; }
+
+.cat-track {
+  width: 100%;
+  height: 8px;
+  background: var(--bg-card-subtle);
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--border-warm);
+}
+
+.cat-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--sage-green);
+  transition: width 0.4s ease;
+}
+
+.cat-fill.adult { background: var(--terracotta); }
+.cat-fill.streaming { background: var(--amber-bright); }
+.cat-fill.gaming { background: var(--lavender); }
+.cat-fill.video { background: var(--blue-soft); }
+
+/* 14-Day Trend Chart */
+.trend-chart-wrap {
+  display: grid;
+  grid-template-columns: repeat(14, 1fr);
+  gap: 6px;
+  height: 180px;
+  align-items: end;
+  padding: 14px 10px 8px;
+  background: var(--bg-card-subtle);
+  border: 1px solid var(--border-warm);
+  border-radius: var(--radius-inner);
+}
+
+.trend-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  gap: 5px;
+}
+
+.trend-bar-val {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.trend-bar {
+  width: 75%;
+  min-height: 4px;
+  border-radius: 5px 5px 2px 2px;
+  background: var(--sage-green);
+  transition: height 0.3s ease;
+}
+
+.trend-bar.empty { background: var(--border-warm); height: 4px !important; }
+
+.trend-date {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-muted);
+}
+
+/* Top Domains Leaderboard */
+.leaderboard-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.leader-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: var(--bg-card-subtle);
+  border: 1px solid var(--border-warm);
+  border-radius: 8px;
+}
+
+.leader-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.leader-rank {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-warm);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+}
+
+.leader-domain {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.leader-hits {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--amber-honey);
+  background: var(--amber-light);
+  border: 1px solid var(--amber-border);
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+/* Psychological Insights Grid */
+.psych-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.psych-subcard {
+  background: var(--bg-card-subtle);
+  border: 1px solid var(--border-warm);
+  border-radius: var(--radius-inner);
+  padding: 16px;
+}
+
+.psych-subcard h3 {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 10px;
+}
+
+.psych-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  padding: 5px 0;
+  border-bottom: 1px dashed var(--border-warm);
+}
+
+.psych-row:last-child { border-bottom: none; }
+.psych-key { color: var(--text-secondary); text-transform: capitalize; }
+.psych-val { font-family: var(--font-mono); font-weight: 700; color: var(--text-primary); }
+
+/* SaaS Roadmap Card */
+.saas-vision-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f6f2ea 100%);
+  border: 1px solid var(--border-warm-strong);
+}
+
+.saas-header-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.pricing-preview-badge {
+  background: var(--sage-light);
+  border: 1px solid var(--sage-border);
+  border-radius: 12px;
+  padding: 10px 18px;
+  text-align: center;
+}
+
+.price-tag {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--sage-green);
+}
+
+.price-sub {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.saas-pillars-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+.saas-pillar {
+  background: var(--bg-card);
+  border: 1px solid var(--border-warm);
+  border-radius: var(--radius-inner);
+  padding: 16px;
+}
+
+.pillar-icon {
+  display: inline-block;
+  font-size: 22px;
+  margin-bottom: 8px;
+}
+
+.saas-pillar h3 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.saas-pillar p {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 24px;
+  font-size: 12px;
+  color: var(--text-muted);
+  background: var(--bg-card-subtle);
+  border-radius: var(--radius-inner);
+  border: 1px dashed var(--border-warm-strong);
+}
+
+@media (max-width: 960px) {
+  .col-span-3 { grid-column: span 6; }
+  .col-span-5, .col-span-7 { grid-column: span 12; }
+  .psych-grid { grid-template-columns: 1fr; }
+  .saas-pillars-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 600px) {
+  .col-span-3 { grid-column: span 12; }
+  .saas-pillars-grid { grid-template-columns: 1fr; }
+}

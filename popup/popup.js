@@ -265,6 +265,11 @@ function setupEventListeners() {
     });
   });
 
+  // Open Analytics Dashboard
+  document.getElementById('openAnalyticsBtn')?.addEventListener('click', () => {
+    chrome.tabs.create({ url: chrome.runtime.getURL('analytics/analytics.html') });
+  });
+
   // Open Options Studio
   document.getElementById('openSettingsBtn').addEventListener('click', () => {
     chrome.runtime.openOptionsPage();

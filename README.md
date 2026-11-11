@@ -146,6 +146,9 @@ All submissions are permanently recorded in the **Reflection & Intent Audit Vaul
   * Quick-launch deep work chips (`25m`, `45m`, `60m`, `2h`) with a live countdown display.
 * **🛡️ Strict Mode Armor:**
   * Prevents modifying rules or disabling focus sprints during active curfew hours.
+* **📊 Behavioral Telemetry & SaaS Analytics Dashboard (`analytics/analytics.html`):**
+  * Dedicated product dashboard visualizing **Time Reclaimed**, **Annualized Hours Projected**, **Normal vs Incognito Split**, **24-Hour Urge Vulnerability Heatmap**, **14-Day Protection Trend**, **Category Escapism Breakdown**, **Top Temptation Domains**, and **7-Step Psychological Insights**.
+  * Includes a **`● Live Local Data` / `✨ Product Demo Preview`** toggle for live product demonstrations and JSON telemetry exports, plus a built-in roadmap for the upcoming **ARE Cloud** micro-subscription platform.
 * **📊 Reflection & Intent Audit Vault:**
   * View, analyze, or clear logged reflection history and intent data, plus search and filter rules across all categories.
 * **🍱 Apple Bento Grid Studio:**
@@ -199,6 +202,10 @@ ARE/
 │   ├── options.html      # Full Apple Bento Grid Studio Dashboard
 │   ├── options.css       # Studio styles, tokens, and telemetry pods
 │   └── options.js        # Rule Forge, Audit Log Renderer, and State Controller
+├── analytics/
+│   ├── analytics.html    # Behavioral Telemetry & SaaS Product Analytics Dashboard
+│   ├── analytics.css     # Warm Cozy Data Visualization styling
+│   └── analytics.js      # Live Telemetry, 24h Urge Heatmap, Demo Preview & JSON Export
 └── blocked/
     ├── blocked.html      # Mindful Sanctuary Interception Screen & 7-Step Wizard
     ├── blocked.css       # Cozy Linen & Sage theme styling

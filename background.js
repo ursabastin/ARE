@@ -242,6 +242,31 @@ function buildCatalogRules(options = {}) {
   }));
 }
 
+function getLocalDateKey(dateObj = new Date()) {
+  const y = dateObj.getFullYear();
+  const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+  const d = String(dateObj.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+function createDefaultStats() {
+  return {
+    totalBlocked: 0,
+    todayBlocked: 0,
+    normalBlocked: 0,
+    incognitoBlocked: 0,
+    estimatedSavedMinutes: 0,
+    focusMinutesCompleted: 0,
+    focusSessionsCount: 0,
+    commitmentsHonored: 0,
+    lastResetDate: getLocalDateKey(),
+    dailyHistory: {},
+    hourlyDistribution: new Array(24).fill(0),
+    categoryCounts: {},
+    domainCounts: {}
+  };
+}
+
 function getDefaultState() {
   return {
     catalogVersion: CATALOG_VERSION,
@@ -260,12 +285,7 @@ function getDefaultState() {
     },
     strictMode: true,
     reflectionLogs: [],
-    stats: {
-      totalBlocked: 0,
-      todayBlocked: 0,
-      commitmentsHonored: 0,
-      lastResetDate: new Date().toISOString().split('T')[0]
-    }
+    stats: createDefaultStats()
   };
 }
 
@@ -561,6 +581,19 @@ async function evaluateUrlAgainstRestrictions(targetUrl) {
 // Debounce map to prevent double-counting stats
 const recentTabBlocks = new Map();
 
+const SAVED_MINS_BY_CATEGORY = {
+  adult: 25,
+  streaming: 35,
+  gaming: 30,
+  comics: 20,
+  video: 18,
+  social: 15,
+  forums: 15,
+  messaging: 10,
+  dating: 15,
+  custom: 15
+};
+
 async function enforceBlockOnTab(tabId, targetUrl, evaluation) {
   const now = Date.now();
   const lastBlock = recentTabBlocks.get(tabId) || 0;
@@ -568,16 +601,65 @@ async function enforceBlockOnTab(tabId, targetUrl, evaluation) {
   recentTabBlocks.set(tabId, now);
 
   if (shouldCountStat) {
+    let isIncognito = false;
+    try {
+      const tabInfo = await chrome.tabs.get(tabId);
+      isIncognito = !!(tabInfo && tabInfo.incognito);
+    } catch (e) {
+      isIncognito = false;
+    }
+
     const state = await chrome.storage.local.get("stats");
-    const stats = state.stats || { totalBlocked: 0, todayBlocked: 0, commitmentsHonored: 0, lastResetDate: "" };
-    const today = new Date().toISOString().split('T')[0];
+    const defaults = createDefaultStats();
+    const stats = { ...defaults, ...(state.stats || {}) };
+    stats.dailyHistory = { ...(stats.dailyHistory || {}) };
+    stats.hourlyDistribution = Array.isArray(stats.hourlyDistribution) && stats.hourlyDistribution.length === 24
+      ? [...stats.hourlyDistribution]
+      : new Array(24).fill(0);
+    stats.categoryCounts = { ...(stats.categoryCounts || {}) };
+    stats.domainCounts = { ...(stats.domainCounts || {}) };
+
+    const nowDate = new Date();
+    const today = getLocalDateKey(nowDate);
+    const hour = nowDate.getHours();
 
     if (stats.lastResetDate !== today) {
       stats.todayBlocked = 0;
       stats.lastResetDate = today;
     }
+
+    const category = evaluation.isPermanentShield
+      ? "adult"
+      : ((evaluation.rule && evaluation.rule.category) || "custom");
+    const savedMins = SAVED_MINS_BY_CATEGORY[category] || 15;
+    const { hostname } = normalizeUrl(targetUrl);
+    const domainKey = (evaluation.rule && evaluation.rule.pattern) || hostname || "unknown";
+
     stats.totalBlocked += 1;
     stats.todayBlocked += 1;
+    if (isIncognito) stats.incognitoBlocked += 1;
+    else stats.normalBlocked += 1;
+    stats.estimatedSavedMinutes += savedMins;
+
+    stats.hourlyDistribution[hour] = (stats.hourlyDistribution[hour] || 0) + 1;
+    stats.categoryCounts[category] = (stats.categoryCounts[category] || 0) + 1;
+    stats.domainCounts[domainKey] = (stats.domainCounts[domainKey] || 0) + 1;
+
+    if (!stats.dailyHistory[today]) {
+      stats.dailyHistory[today] = { blocked: 0, incognito: 0, savedMinutes: 0, focusMinutes: 0 };
+    }
+    stats.dailyHistory[today].blocked += 1;
+    if (isIncognito) stats.dailyHistory[today].incognito += 1;
+    stats.dailyHistory[today].savedMinutes += savedMins;
+
+    // Prune dailyHistory to last 90 days
+    const keys = Object.keys(stats.dailyHistory).sort();
+    if (keys.length > 90) {
+      for (const oldKey of keys.slice(0, keys.length - 90)) {
+        delete stats.dailyHistory[oldKey];
+      }
+    }
+
     await chrome.storage.local.set({ stats });
   }
 
@@ -965,6 +1047,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           target.lockedUntil = now + THREE_DAYS_MS;
           target.renewalCount = (target.renewalCount || 0) + 1;
           target.graceExpiresAt = null;
+          stats.commitmentsHonored = (stats.commitmentsHonored || 0) + 1;
         }
 
         await chrome.storage.local.set({ rules, reflectionLogs, stats });
@@ -976,7 +1059,19 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         const startedAt = Date.now();
         const expiresAt = startedAt + duration * 60 * 1000;
         const focusLock = { active: true, durationMinutes: duration, startedAt, expiresAt };
-        await chrome.storage.local.set({ focusLock });
+
+        const stData = await chrome.storage.local.get("stats");
+        const stats = { ...createDefaultStats(), ...(stData.stats || {}) };
+        stats.dailyHistory = { ...(stats.dailyHistory || {}) };
+        const today = getLocalDateKey();
+        if (!stats.dailyHistory[today]) {
+          stats.dailyHistory[today] = { blocked: 0, incognito: 0, savedMinutes: 0, focusMinutes: 0 };
+        }
+        stats.focusMinutesCompleted = (stats.focusMinutesCompleted || 0) + duration;
+        stats.focusSessionsCount = (stats.focusSessionsCount || 0) + 1;
+        stats.dailyHistory[today].focusMinutes += duration;
+
+        await chrome.storage.local.set({ focusLock, stats });
         await sweepOpenTabs();
         sendResponse({ status: "success", focusLock });
       }

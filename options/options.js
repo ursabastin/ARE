@@ -558,11 +558,22 @@ function setupStrictModeAndReset() {
 
   document.getElementById('resetStatsBtn').addEventListener('click', () => {
     if (confirm("Reset interception statistics back to 0?")) {
+      const d = new Date();
+      const todayLocal = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
       const stats = {
         totalBlocked: 0,
         todayBlocked: 0,
+        normalBlocked: 0,
+        incognitoBlocked: 0,
+        estimatedSavedMinutes: 0,
+        focusMinutesCompleted: 0,
+        focusSessionsCount: 0,
         commitmentsHonored: 0,
-        lastResetDate: new Date().toISOString().split('T')[0]
+        lastResetDate: todayLocal,
+        dailyHistory: {},
+        hourlyDistribution: new Array(24).fill(0),
+        categoryCounts: {},
+        domainCounts: {}
       };
       chrome.storage.local.set({ stats }, () => {
         showToast("Stats reset.");
