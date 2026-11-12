@@ -2,7 +2,7 @@
 // ARE (Autonomous Restrictor Engine) v2.2 - Cozy 3-Day Anti-Escapism, Entertainment & NSFW Shield
 
 const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000; // 72 Hours Mandatory Lock
-const CATALOG_VERSION = 4;
+const CATALOG_VERSION = 5;
 
 // Built-in 24/7 Adult & NSFW Heuristic Guard (Works across Normal + Incognito)
 const ADULT_TLDS = ['.xxx', '.porn', '.sex', '.adult', '.sexy'];
@@ -170,7 +170,6 @@ const SOCIAL_CONSUMPTION_CATALOG = [
   // --- 5. Visual, Pins & Short-Form Video Dopamine Traps ---
   { id: "rule_fb_reel", name: "Facebook Reels (24/7)", pattern: "facebook.com/reel", category: "video", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Short-form loops are locked 24/7." },
   { id: "rule_fb_watch", name: "Facebook Watch (24/7)", pattern: "facebook.com/watch", category: "video", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Video feed locked 24/7." },
-  { id: "rule_ig_reels", name: "Instagram Reels (24/7)", pattern: "instagram.com/reels", category: "video", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Reels loop locked 24/7." },
   { id: "rule_pinterest", name: "Pinterest (All Regions)", pattern: "pinterest.*", category: "video", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Visual rabbit holes paused 24/7. Save your energy for real creation." },
   { id: "rule_pinit", name: "Pinterest Shortlink", pattern: "pin.it", category: "video", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Pinterest redirect intercepted under your 3-day lock." },
   { id: "rule_tiktok", name: "TikTok", pattern: "tiktok.com", category: "video", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Short-form dopamine loop blocked 24/7. Guard your attention span." },
@@ -179,7 +178,6 @@ const SOCIAL_CONSUMPTION_CATALOG = [
   { id: "rule_dailymotion", name: "Dailymotion", pattern: "dailymotion.com", category: "video", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Video consumption barrier active." },
 
   // --- 6. Social Networks & Infinite Feeds ---
-  { id: "rule_instagram", name: "Instagram", pattern: "instagram.com", category: "social", defaultMode: "schedule", customMessage: "Step back from the feed. Protect your peace and attention." },
   { id: "rule_facebook", name: "Facebook", pattern: "facebook.com", category: "social", defaultMode: "schedule", customMessage: "No endless feed scrolling. Reclaim your quiet time." },
   { id: "rule_fb", name: "Facebook Shortlink", pattern: "fb.com", category: "social", defaultMode: "schedule", customMessage: "Social detour intercepted. Stay grounded." },
   { id: "rule_threads_net", name: "Threads", pattern: "threads.net", category: "social", defaultMode: "schedule", customMessage: "Don't hop to another feed. Let your mind rest." },
@@ -201,8 +199,6 @@ const SOCIAL_CONSUMPTION_CATALOG = [
   { id: "rule_discord_gg", name: "Discord Invites", pattern: "discord.gg", category: "messaging", defaultMode: "schedule", customMessage: "Discord invite link paused under your 3-day pledge." },
 
   // --- 8. Forums, Q&A & Meme Aggregators ---
-  { id: "rule_reddit", name: "Reddit", pattern: "reddit.com", category: "forums", defaultMode: "schedule", customMessage: "Threads and rabbit holes paused. Step away from the screen." },
-  { id: "rule_redd_it", name: "Reddit Shortlink", pattern: "redd.it", category: "forums", defaultMode: "schedule", customMessage: "Reddit link intercepted under your commitment." },
   { id: "rule_quora", name: "Quora", pattern: "quora.com", category: "forums", defaultMode: "schedule", customMessage: "Q&A doom-scrolling paused. Save your focus." },
   { id: "rule_9gag", name: "9GAG", pattern: "9gag.com", category: "forums", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Meme feed paused 24/7. Protect your dopamine balance." },
   { id: "rule_imgur", name: "Imgur", pattern: "imgur.com", category: "forums", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Image scroll barrier active 24/7." },
@@ -336,19 +332,21 @@ async function initializeAndMigrateStorage() {
 
     const currentCatalogVersion = data.catalogVersion || 1;
     if (currentCatalogVersion < CATALOG_VERSION) {
+      const deprecatedPatterns = new Set();
       if (currentCatalogVersion < 4) {
         // Unblock YouTube and YouTube Studio across existing installations (creator channel workflow).
-        const youtubePatterns = new Set([
-          "youtube.com",
-          "youtu.be",
-          "youtube.com/shorts",
-          "studio.youtube.com",
-          "m.youtube.com",
-          "music.youtube.com"
-        ]);
+        ["youtube.com", "youtu.be", "youtube.com/shorts", "studio.youtube.com", "m.youtube.com", "music.youtube.com"]
+          .forEach(p => deprecatedPatterns.add(p));
+      }
+      if (currentCatalogVersion < 5) {
+        // Unblock Instagram and Reddit across existing installations.
+        ["instagram.com", "instagram.com/reels", "instagr.am", "reddit.com", "redd.it", "old.reddit.com", "new.reddit.com"]
+          .forEach(p => deprecatedPatterns.add(p));
+      }
+      if (deprecatedPatterns.size > 0) {
         rules = rules.filter(r => {
           const normalized = (r.pattern || "").toLowerCase().replace(/^www\./, '').trim();
-          return !youtubePatterns.has(normalized);
+          return !deprecatedPatterns.has(normalized);
         });
       }
 

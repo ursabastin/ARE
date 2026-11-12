@@ -107,9 +107,9 @@ function buildDemoPayload() {
           comics: 4
         },
         domainCounts: {
-          "instagram.com": 38,
+          "facebook.com": 38,
           "tiktok.com": 27,
-          "reddit.com": 18,
+          "x.com": 18,
           "pinterest.*": 15,
           "netflix.com": 14,
           "telegram.org": 11

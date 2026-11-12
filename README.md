@@ -133,11 +133,11 @@ All submissions are permanently recorded in the **Reflection & Intent Audit Vaul
     * **Streaming, Anime & Movies:** Netflix, Prime Video, Hotstar, Disney+, JioCinema, SonyLIV, ZEE5, Hulu, Max, Crunchyroll, Twitch, Kick, HiAnime, AniWatch, 9anime, FMovies, 123Movies, IMDb.
     * **Browser Games & Gaming Portals:** Poki, CrazyGames, Coolmath Games, Miniclip, Y8, Friv, Kongregate, Krunker, Slither, Agar, Roblox, Steam, Epic Games.
     * **Comics, Manga & Entertainment Feeds:** WEBTOON, MangaDex, Asura, Wattpad, AO3, Bored Panda, BuzzFeed, Cricbuzz, ESPNcricinfo, 9GAG, Imgur, 4chan.
-    * **Short-Form Loops (24/7 Path Blocking):** `instagram.com/reels`, `facebook.com/reel`, `facebook.com/watch`, `tiktok.com`, `pinterest.*`, `pin.it`. (YouTube is intentionally omitted so creators can manage channels and upload work unhindered.)
+    * **Short-Form Loops (24/7 Path Blocking):** `facebook.com/reel`, `facebook.com/watch`, `tiktok.com`, `pinterest.*`, `pin.it`. (YouTube, Instagram, and Reddit are omitted from defaults.)
 * **🌐 Full Anti-Escapism Social & Chat Shield:**
-  * **Social Feeds:** `instagram.com`, `facebook.com`, `fb.com`, `threads.net`, `threads.com`, `x.com`, `twitter.com`, `bsky.app`, `mastodon.social`, `linkedin.com`, `tumblr.com`
+  * **Social Feeds:** `facebook.com`, `fb.com`, `threads.net`, `threads.com`, `x.com`, `twitter.com`, `bsky.app`, `mastodon.social`, `linkedin.com`, `tumblr.com`
   * **Messaging & Communities:** `web.whatsapp.com`, `wa.me`, `telegram.org` (`web.telegram.org`), `t.me`, `messenger.com`, `discord.com`, `discord.gg`
-  * **Forums & Q&A:** `reddit.com`, `redd.it`, `quora.com`
+  * **Forums & Q&A:** `quora.com`
   * **Dating / Swiping:** `tinder.com`, `bumble.com`, `hinge.co`
 * **🌙 Autonomous 9:00 PM Bedtime Curfew & 24/7 Blackout Option:**
   * Triple-layer interception (`webNavigation`, `tabs.onUpdated`, and 60s `chrome.alarms` tab sweeps) plus live **Incognito Guard** status badge in Popup and ARE Studio.
