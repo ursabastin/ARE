@@ -4,6 +4,7 @@ let currentTabDomain = "";
 let selectedFocusMinutes = 45;
 let popupRulesCache = [];
 let popupSearchQuery = "";
+let popupBracketInterval = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
   await initCurrentTab();
@@ -92,7 +93,70 @@ async function loadState() {
     popupRulesCache = state.rules || [];
     updateCurrentTabLockButton(popupRulesCache);
     renderRules(popupRulesCache);
+    renderPopupBracket(response.bracketStatus, isFocusActive);
   });
+}
+
+function formatHms(ms) {
+  const sec = Math.max(0, Math.floor(ms / 1000));
+  const h = String(Math.floor(sec / 3600)).padStart(2, '0');
+  const m = String(Math.floor((sec % 3600) / 60)).padStart(2, '0');
+  const s = String(sec % 60).padStart(2, '0');
+  return `${h}:${m}:${s}`;
+}
+
+function renderPopupBracket(bracketStatus, isFocusActive) {
+  const pill = document.getElementById('popupBracketPill');
+  const clock = document.getElementById('popupBracketClock');
+  const sub = document.getElementById('popupBracketSub');
+  const btn = document.getElementById('popupStartBracketBtn');
+  if (!pill || !bracketStatus) return;
+
+  if (popupBracketInterval) {
+    clearInterval(popupBracketInterval);
+    popupBracketInterval = null;
+  }
+
+  if (bracketStatus.state === 'active') {
+    pill.textContent = isFocusActive ? 'PAUSED' : 'ACTIVE NOW';
+    pill.className = 'bracket-pill';
+    btn.style.display = 'none';
+    sub.textContent = isFocusActive
+      ? 'Focus Sprint active — pauses streaming until focus finishes'
+      : 'Anime & streaming open • Auto-locks when 2h expires';
+    const expiresAt = bracketStatus.expiresAt || (Date.now() + bracketStatus.remainingMs);
+    const tickActive = () => {
+      const left = Math.max(0, expiresAt - Date.now());
+      clock.textContent = formatHms(left);
+      clock.style.color = 'var(--sage-green)';
+      if (left <= 0) loadState();
+    };
+    tickActive();
+    popupBracketInterval = setInterval(tickActive, 1000);
+  } else if (bracketStatus.state === 'exhausted') {
+    pill.textContent = 'ENDED TODAY';
+    pill.className = 'bracket-pill used';
+    btn.style.display = 'none';
+    sub.textContent = 'Daily 2h window used • Refreshes tomorrow';
+    const resetAt = Date.now() + bracketStatus.resetInMs;
+    const tickReset = () => {
+      const left = Math.max(0, resetAt - Date.now());
+      clock.textContent = `Reset ${formatHms(left)}`;
+      clock.style.color = 'var(--terracotta)';
+      if (left <= 0) loadState();
+    };
+    tickReset();
+    popupBracketInterval = setInterval(tickReset, 1000);
+  } else {
+    pill.textContent = '2H READY';
+    pill.className = 'bracket-pill';
+    clock.textContent = '02:00:00';
+    clock.style.color = 'var(--sage-green)';
+    sub.textContent = '1 continuous 2h window today • Ends automatically';
+    btn.style.display = 'inline-flex';
+    btn.disabled = !!isFocusActive;
+    btn.textContent = isFocusActive ? 'Focus Active' : '▶ Start 2h';
+  }
 }
 
 function isDomainMatchedByRule(hostname, rawPattern) {
@@ -261,6 +325,16 @@ function setupEventListeners() {
       const btn = document.getElementById('quickBlockBtn');
       btn.textContent = "LOCKED (3 DAYS) ✓";
       btn.disabled = true;
+      loadState();
+    });
+  });
+
+  // Start Daily 2-Hour Streaming & Anime Bracket
+  document.getElementById('popupStartBracketBtn')?.addEventListener('click', () => {
+    chrome.runtime.sendMessage({ action: "START_STREAMING_BRACKET" }, (res) => {
+      if (res && res.status === "error") {
+        alert(res.message);
+      }
       loadState();
     });
   });

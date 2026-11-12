@@ -4,6 +4,7 @@ let selectedFocusDuration = 45;
 let allRulesCache = [];
 let vaultSearchQuery = "";
 let vaultCategoryFilter = "all";
+let studioBracketInterval = null;
 
 document.addEventListener('DOMContentLoaded', () => {
   initClock();
@@ -13,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupFocusShield();
   setupStrictModeToggle();
   setupVaultFilters();
+  setupStudioBracket();
 });
 
 function showToast(msg) {
@@ -118,6 +120,9 @@ function loadBentoData() {
 
     // Focus Lock View
     renderFocusShieldView(focusLock);
+
+    // Daily 2-Hour Streaming & Anime Bracket
+    renderStudioBracket(res.bracketStatus, focusLock);
 
     // Rules Vault Bento Grid
     renderRulesBentoGrid(rList);
@@ -551,4 +556,87 @@ function setupStrictModeToggle() {
       });
     });
   }
+}
+
+function formatStudioHms(ms) {
+  const sec = Math.max(0, Math.floor(ms / 1000));
+  const h = String(Math.floor(sec / 3600)).padStart(2, '0');
+  const m = String(Math.floor((sec % 3600) / 60)).padStart(2, '0');
+  const s = String(sec % 60).padStart(2, '0');
+  return `${h}:${m}:${s}`;
+}
+
+function renderStudioBracket(bracketStatus, focusLock) {
+  const badge = document.getElementById('studioBracketBadge');
+  const timer = document.getElementById('studioBracketTimer');
+  const desc = document.getElementById('studioBracketDesc');
+  const btn = document.getElementById('studioStartBracketBtn');
+  if (!badge || !bracketStatus) return;
+
+  if (studioBracketInterval) {
+    clearInterval(studioBracketInterval);
+    studioBracketInterval = null;
+  }
+
+  const focusActive = focusLock && focusLock.active && Date.now() < focusLock.expiresAt;
+
+  if (bracketStatus.state === 'active') {
+    badge.textContent = focusActive ? 'PAUSED (FOCUS SPRINT)' : 'ACTIVE • 2H WINDOW OPEN';
+    badge.style.color = focusActive ? 'var(--amber-honey)' : 'var(--sage-green)';
+    badge.style.background = focusActive ? 'var(--amber-light)' : 'var(--sage-light)';
+    badge.style.borderColor = focusActive ? 'var(--amber-border)' : 'var(--sage-border)';
+    btn.style.display = 'none';
+    desc.textContent = focusActive
+      ? 'Focus Sprint Lock temporarily overrides streaming sites until your sprint finishes.'
+      : 'Your daily 2-hour anime & streaming window is open. When this timer hits 00:00:00, all streaming & anime sites lock automatically until tomorrow.';
+    const expiresAt = bracketStatus.expiresAt || (Date.now() + bracketStatus.remainingMs);
+    const tick = () => {
+      const left = Math.max(0, expiresAt - Date.now());
+      timer.textContent = `${formatStudioHms(left)} remaining today`;
+      timer.style.color = 'var(--sage-green)';
+      if (left <= 0) loadBentoData();
+    };
+    tick();
+    studioBracketInterval = setInterval(tick, 1000);
+  } else if (bracketStatus.state === 'exhausted') {
+    badge.textContent = 'ENDED FOR TODAY';
+    badge.style.color = 'var(--terracotta)';
+    badge.style.background = 'var(--terracotta-light)';
+    badge.style.borderColor = 'var(--terracotta-border)';
+    btn.style.display = 'none';
+    desc.textContent = 'Today’s 2-hour anime & streaming bracket has ended completely. It will automatically refresh tomorrow.';
+    const resetAt = Date.now() + bracketStatus.resetInMs;
+    const tickReset = () => {
+      const left = Math.max(0, resetAt - Date.now());
+      timer.textContent = `Refreshes tomorrow in ${formatStudioHms(left)}`;
+      timer.style.color = 'var(--terracotta)';
+      if (left <= 0) loadBentoData();
+    };
+    tickReset();
+    studioBracketInterval = setInterval(tickReset, 1000);
+  } else {
+    badge.textContent = '2H READY TODAY';
+    badge.style.color = 'var(--sage-green)';
+    badge.style.background = 'var(--sage-light)';
+    badge.style.borderColor = 'var(--sage-border)';
+    timer.textContent = '02:00:00 available today';
+    timer.style.color = 'var(--sage-green)';
+    desc.innerHTML = 'All anime &amp; streaming sites (<code>anikototv.to</code>, Crunchyroll, HiAnime, Netflix, etc.) stay locked by default. When you start your bracket, you get <strong>1 continuous 2-hour window</strong>—once 2 hours finish, it locks completely until tomorrow.';
+    btn.style.display = 'inline-flex';
+    btn.disabled = !!focusActive;
+    btn.textContent = focusActive ? '☕ Focus Sprint Active' : "▶ Start Today's 2-Hour Bracket";
+  }
+}
+
+function setupStudioBracket() {
+  document.getElementById('studioStartBracketBtn')?.addEventListener('click', () => {
+    chrome.runtime.sendMessage({ action: "START_STREAMING_BRACKET" }, (res) => {
+      if (res && res.status === "success") {
+        showToast("🎬 Daily 2-hour Anime & Streaming bracket started!");
+        loadBentoData();
+      } else {
+        alert((res && res.message) || "Could not start bracket.");
+      }
+    });
+  });
 }

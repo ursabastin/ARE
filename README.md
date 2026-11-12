@@ -128,9 +128,9 @@ All submissions are permanently recorded in the **Reflection & Intent Audit Vaul
 * **🔞 24/7 Pornography & NSFW Shield (Normal + Incognito):**
   * Uses `"incognito": "spanning"` in `manifest.json` so protection runs continuously across both normal and Incognito/InPrivate windows.
   * Combines explicit adult domain rules with a permanent **Priority-0 Heuristic & Search Safe-Guard** blocking adult TLDs (`.xxx`, `.porn`, `.sex`, `.adult`, `.sexy`), unambiguous adult hostnames/mirrors, NSFW subreddits, and explicit search queries on Google, Bing, DuckDuckGo, Yahoo, Brave, and Yandex.
-* **🎬 24/7 Total Entertainment & Short-Form Lockout:**
-  * Blocks **all kinds of digital entertainment** around the clock under the 3-day lock:
-    * **Streaming, Anime & Movies:** Netflix, Prime Video, Hotstar, Disney+, JioCinema, SonyLIV, ZEE5, Hulu, Max, Crunchyroll, Twitch, Kick, HiAnime, AniWatch, 9anime, FMovies, 123Movies, IMDb.
+* **🎬 24/7 Total Entertainment + Daily 2-Hour Anime & Streaming Bracket:**
+  * Entertainment categories (**Games, Comics/Manga, Meme Feeds, Short-Form Loops**) stay locked around the clock under the 3-day pledge:
+    * **Daily 2-Hour Anime & Streaming Bracket (`streaming`):** Netflix, Prime Video, Hotstar, Disney+, JioCinema, SonyLIV, ZEE5, Hulu, Max, Crunchyroll, Twitch, Kick, **Anikoto (`anikototv.to`, `anikoto.*`)**, HiAnime, AniWatch, AnimeKai, Kaido, Miruro, Zoro, 9anime, FMovies, 123Movies, IMDb are locked by default—users can start **one continuous 2-hour bracket per day**, after which access automatically locks until midnight reset the next day.
     * **Browser Games & Gaming Portals:** Poki, CrazyGames, Coolmath Games, Miniclip, Y8, Friv, Kongregate, Krunker, Slither, Agar, Roblox, Steam, Epic Games.
     * **Comics, Manga & Entertainment Feeds:** WEBTOON, MangaDex, Asura, Wattpad, AO3, Bored Panda, BuzzFeed, Cricbuzz, ESPNcricinfo, 9GAG, Imgur, 4chan.
     * **Short-Form Loops (24/7 Path Blocking):** `facebook.com/reel`, `facebook.com/watch`, `tiktok.com`, `pinterest.*`, `pin.it`. (YouTube, Instagram, and Reddit are omitted from defaults.)

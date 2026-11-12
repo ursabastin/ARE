@@ -507,6 +507,51 @@ body {
   border-top: 1px solid var(--border-warm);
 }
 
+/* Daily 2-Hour Streaming & Anime Bracket Pod */
+.bracket-pod {
+  background: var(--sage-light);
+  border: 1px solid var(--sage-border);
+  border-radius: var(--radius-pod);
+  padding: 20px;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.bracket-pod.exhausted {
+  background: var(--terracotta-light);
+  border-color: var(--terracotta-border);
+}
+
+.bracket-status-chip {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: rgba(63, 98, 18, 0.14);
+  color: var(--sage-green);
+}
+
+.bracket-pod.exhausted .bracket-status-chip {
+  background: rgba(190, 18, 60, 0.12);
+  color: var(--terracotta);
+}
+
+.bracket-timer-text {
+  font-family: var(--font-mono);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--sage-green);
+  margin-bottom: 6px;
+}
+
+.bracket-pod.exhausted .bracket-timer-text {
+  color: var(--terracotta);
+}
+
+.full-width {
+  width: 100%;
+}
+
 @media (max-width: 600px) {
   .cozy-card {
     padding: 24px 20px;

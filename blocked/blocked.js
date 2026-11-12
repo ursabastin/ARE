@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const isReview = params.get('review') === '1';
   const isPermanent = params.get('permanent') === '1';
   const ruleId = params.get('ruleId') || '';
+  const category = params.get('category') || '';
   const lockedUntil = parseInt(params.get('lockedUntil') || '0', 10);
   const commitmentRemaining = parseInt(params.get('commitmentRemaining') || '0', 10);
 
@@ -29,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (isReview && !isPermanent) {
     initReviewView(ruleId, domain, targetUrl);
   } else {
-    initActiveLockView(reason, message, lockedUntil, commitmentRemaining, isPermanent);
+    initActiveLockView(reason, message, lockedUntil, commitmentRemaining, isPermanent, category, targetUrl);
   }
 
   // Global button handlers
@@ -40,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // View 1: Active 3-Day / Permanent Lock
-function initActiveLockView(reason, message, lockedUntil, commitmentRemaining, isPermanent) {
+function initActiveLockView(reason, message, lockedUntil, commitmentRemaining, isPermanent, category, originalUrl) {
   document.getElementById('activeLockView').style.display = 'block';
   document.getElementById('reviewView').style.display = 'none';
 
@@ -57,6 +58,10 @@ function initActiveLockView(reason, message, lockedUntil, commitmentRemaining, i
     if (badgeText) badgeText.textContent = "24/7 NSFW Guard Active";
     if (countdownElem) countdownElem.textContent = "PERMANENT 24/7 LOCK (NORMAL & INCOGNITO)";
     return;
+  }
+
+  if (category === 'streaming') {
+    initStreamingBracketPod(originalUrl);
   }
 
   // Countdown timer
@@ -87,6 +92,94 @@ function initActiveLockView(reason, message, lockedUntil, commitmentRemaining, i
 
   tick();
   setInterval(tick, 1000);
+}
+
+function formatHms(ms) {
+  const sec = Math.max(0, Math.floor(ms / 1000));
+  const h = String(Math.floor(sec / 3600)).padStart(2, '0');
+  const m = String(Math.floor((sec % 3600) / 60)).padStart(2, '0');
+  const s = String(sec % 60).padStart(2, '0');
+  return `${h}:${m}:${s}`;
+}
+
+function initStreamingBracketPod(originalUrl) {
+  const pod = document.getElementById('streamingBracketPod');
+  const chip = document.getElementById('bracketChip');
+  const mainText = document.getElementById('bracketMainText');
+  const subDesc = document.getElementById('bracketSubDesc');
+  const startBtn = document.getElementById('startBracketBlockedBtn');
+  if (!pod) return;
+
+  let bracketTicker = null;
+
+  function renderBracketState() {
+    chrome.runtime.sendMessage({ action: "GET_STATE" }, (res) => {
+      if (!res || !res.bracketStatus) return;
+      const b = res.bracketStatus;
+      const focusLock = (res.state && res.state.focusLock) || {};
+      const focusActive = focusLock.active && Date.now() < focusLock.expiresAt;
+
+      pod.style.display = 'block';
+      if (bracketTicker) {
+        clearInterval(bracketTicker);
+        bracketTicker = null;
+      }
+
+      if (b.state === 'exhausted') {
+        pod.classList.add('exhausted');
+        chip.textContent = 'ENDED TODAY';
+        subDesc.textContent = 'Your daily 2-hour anime & streaming window has ended completely for today. It will automatically refresh tomorrow.';
+        startBtn.style.display = 'none';
+        const resetAt = Date.now() + b.resetInMs;
+        const updateReset = () => {
+          const left = Math.max(0, resetAt - Date.now());
+          if (left <= 0) {
+            renderBracketState();
+            return;
+          }
+          mainText.textContent = `Refreshes tomorrow in ${formatHms(left)}`;
+        };
+        updateReset();
+        bracketTicker = setInterval(updateReset, 1000);
+      } else if (b.state === 'active') {
+        pod.classList.remove('exhausted');
+        chip.textContent = focusActive ? 'PAUSED BY FOCUS' : '2H ACTIVE';
+        mainText.textContent = `${formatHms(b.remainingMs)} remaining today`;
+        if (focusActive) {
+          subDesc.textContent = 'Your Focus Sprint Lock is active right now. Anime & streaming stay paused until the focus sprint ends.';
+          startBtn.style.display = 'none';
+        } else {
+          window.location.href = originalUrl.startsWith('http') ? originalUrl : `https://${originalUrl}`;
+        }
+      } else {
+        pod.classList.remove('exhausted');
+        chip.textContent = '2H READY';
+        mainText.textContent = '02:00:00 available today';
+        subDesc.textContent = 'Starting unlocks all anime & streaming sites for one continuous 2-hour window. Once those 2 hours end, access locks completely until tomorrow.';
+        if (focusActive) {
+          startBtn.disabled = true;
+          startBtn.textContent = '☕ Finish Active Focus Sprint First';
+        } else {
+          startBtn.style.display = 'inline-flex';
+          startBtn.disabled = false;
+          startBtn.textContent = '▶ Start Daily 2-Hour Bracket & Open Site';
+          startBtn.onclick = () => {
+            startBtn.disabled = true;
+            chrome.runtime.sendMessage({ action: "START_STREAMING_BRACKET" }, (startRes) => {
+              if (startRes && startRes.status === 'success') {
+                window.location.href = originalUrl.startsWith('http') ? originalUrl : `https://${originalUrl}`;
+              } else {
+                alert((startRes && startRes.message) || 'Could not start daily bracket.');
+                renderBracketState();
+              }
+            });
+          };
+        }
+      }
+    });
+  }
+
+  renderBracketState();
 }
 
 // View 2: 3-Day Review & 7-Step Follow-Up Reflection Wizard

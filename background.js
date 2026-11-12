@@ -2,7 +2,8 @@
 // ARE (Autonomous Restrictor Engine) v2.2 - Cozy 3-Day Anti-Escapism, Entertainment & NSFW Shield
 
 const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000; // 72 Hours Mandatory Lock
-const CATALOG_VERSION = 5;
+const TWO_HOURS_MS = 2 * 60 * 60 * 1000; // Daily 2-Hour Anime & Streaming Bracket
+const CATALOG_VERSION = 6;
 
 // Built-in 24/7 Adult & NSFW Heuristic Guard (Works across Normal + Incognito)
 const ADULT_TLDS = ['.xxx', '.porn', '.sex', '.adult', '.sexy'];
@@ -123,6 +124,12 @@ const SOCIAL_CONSUMPTION_CATALOG = [
   { id: "rule_appletv", name: "Apple TV+", pattern: "tv.apple.com", category: "streaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Entertainment Shield Active." },
   { id: "rule_tubi", name: "Tubi", pattern: "tubitv.com", category: "streaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Entertainment Shield Active." },
   { id: "rule_crunchyroll", name: "Crunchyroll", pattern: "crunchyroll.com", category: "streaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Anime marathon blocked under your focus commitment." },
+  { id: "rule_anikototv", name: "Anikoto TV", pattern: "anikototv.to", category: "streaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Anime streaming paused outside your daily 2-hour bracket." },
+  { id: "rule_anikoto", name: "Anikoto (All Mirrors)", pattern: "anikoto.*", category: "streaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Anime streaming paused outside your daily 2-hour bracket." },
+  { id: "rule_animekai", name: "AnimeKai", pattern: "animekai.*", category: "streaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Anime streaming paused outside your daily 2-hour bracket." },
+  { id: "rule_kaido", name: "Kaido", pattern: "kaido.to", category: "streaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Anime streaming paused outside your daily 2-hour bracket." },
+  { id: "rule_miruro", name: "Miruro", pattern: "miruro.*", category: "streaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Anime streaming paused outside your daily 2-hour bracket." },
+  { id: "rule_zoro", name: "Zoro Anime", pattern: "zoro.*", category: "streaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Anime streaming paused outside your daily 2-hour bracket." },
   { id: "rule_hianime", name: "HiAnime", pattern: "hianime.*", category: "streaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Anime streaming blocked. Protect your focus." },
   { id: "rule_aniwatch", name: "AniWatch", pattern: "aniwatch.*", category: "streaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Anime streaming blocked." },
   { id: "rule_9anime", name: "9anime", pattern: "9anime.*", category: "streaming", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Anime streaming blocked." },
@@ -276,6 +283,11 @@ function getDefaultState() {
       startedAt: 0,
       expiresAt: 0
     },
+    streamingBracket: {
+      lastUsedDate: null,
+      startedAt: 0,
+      expiresAt: 0
+    },
     strictMode: true,
     reflectionLogs: [],
     stats: createDefaultStats()
@@ -387,29 +399,81 @@ async function initializeAndMigrateStorage() {
     const reflectionLogs = data.reflectionLogs || [];
     if (!data.reflectionLogs) modified = true;
 
-    if (modified || currentCatalogVersion < CATALOG_VERSION || data.nsfwGuardEnabled === undefined) {
-      await chrome.storage.local.set({
+    if (modified || currentCatalogVersion < CATALOG_VERSION || data.nsfwGuardEnabled === undefined || !data.streamingBracket) {
+      const updatePayload = {
         rules,
         reflectionLogs,
         nsfwGuardEnabled: true,
         catalogVersion: CATALOG_VERSION
-      });
+      };
+      if (!data.streamingBracket) {
+        updatePayload.streamingBracket = { lastUsedDate: null, startedAt: 0, expiresAt: 0 };
+      }
+      await chrome.storage.local.set(updatePayload);
+    }
+
+    if (data.streamingBracket && data.streamingBracket.expiresAt > Date.now()) {
+      chrome.alarms.create("streamingBracketExpire", { when: data.streamingBracket.expiresAt });
     }
   }
 
   chrome.alarms.create("autonomousCheck", { periodInMinutes: 1 });
   await sweepOpenTabs();
-  console.log("ARE Cozy v2.2 Active: 24/7 NSFW Guard + All Entertainment & Social Shield (Normal & Incognito).");
+  console.log("ARE Cozy v2.5 Active: 24/7 NSFW Guard + Daily 2h Anime/Streaming Bracket + Immutable Ledger.");
 }
 
 chrome.runtime.onInstalled.addListener(() => {
   initializeAndMigrateStorage();
 });
 
-chrome.runtime.onStartup.addListener(() => {
+chrome.runtime.onStartup.addListener(async () => {
   chrome.alarms.create("autonomousCheck", { periodInMinutes: 1 });
+  const data = await chrome.storage.local.get("streamingBracket");
+  if (data.streamingBracket && data.streamingBracket.expiresAt > Date.now()) {
+    chrome.alarms.create("streamingBracketExpire", { when: data.streamingBracket.expiresAt });
+  }
   sweepOpenTabs();
 });
+
+// Compute daily 2-hour anime & streaming bracket state (1 continuous session per local day, auto-locks at 2h, resets tomorrow)
+function getStreamingBracketStatus(bracket, nowMs = Date.now()) {
+  const b = bracket || { lastUsedDate: null, startedAt: 0, expiresAt: 0 };
+  const today = getLocalDateKey(new Date(nowMs));
+  const nextMidnight = new Date(nowMs);
+  nextMidnight.setHours(24, 0, 0, 0);
+  const resetInMs = Math.max(0, nextMidnight.getTime() - nowMs);
+
+  if (b.expiresAt && nowMs < b.expiresAt) {
+    return {
+      state: "active",
+      today,
+      startedAt: b.startedAt,
+      expiresAt: b.expiresAt,
+      remainingMs: b.expiresAt - nowMs,
+      resetInMs
+    };
+  }
+
+  if (b.lastUsedDate === today) {
+    return {
+      state: "exhausted",
+      today,
+      startedAt: b.startedAt || 0,
+      expiresAt: b.expiresAt || 0,
+      remainingMs: 0,
+      resetInMs
+    };
+  }
+
+  return {
+    state: "ready",
+    today,
+    startedAt: 0,
+    expiresAt: 0,
+    remainingMs: TWO_HOURS_MS,
+    resetInMs: 0
+  };
+}
 
 // Time utilities
 function timeToMinutes(timeStr) {
@@ -486,6 +550,7 @@ async function evaluateUrlAgainstRestrictions(targetUrl) {
   const nowMs = Date.now();
 
   const isFocusLockActive = focusLock.active && nowMs < focusLock.expiresAt;
+  const bracketStatus = getStreamingBracketStatus(state.streamingBracket, nowMs);
 
   for (const rule of rules) {
     if (!rule.enabled) continue;
@@ -493,6 +558,11 @@ async function evaluateUrlAgainstRestrictions(targetUrl) {
     if (doesPatternMatch(hostname, pathname, rule.pattern)) {
       // Skip only this specific rule if user has an active 1-hour grace pass (never skips adult heuristic or other rules)
       if (rule.graceExpiresAt && nowMs < rule.graceExpiresAt) {
+        continue;
+      }
+
+      // Daily 2-Hour Anime & Streaming Bracket: allow streaming/anime while active unless Focus Sprint Lock is running
+      if (rule.category === 'streaming' && !isFocusLockActive && bracketStatus.state === 'active') {
         continue;
       }
 
@@ -526,11 +596,16 @@ async function evaluateUrlAgainstRestrictions(targetUrl) {
       }
 
       if (rule.mode === 'always') {
+        const streamingReason = rule.category === 'streaming'
+          ? (bracketStatus.state === 'exhausted'
+            ? "Daily 2-Hour Anime & Streaming Bracket Ended • Refreshes Tomorrow"
+            : "Anime & Streaming Shield • Daily 2-Hour Bracket Ready")
+          : "24/7 Continuous Rest Barrier";
         return {
           shouldBlock: true,
           rule,
           isReviewDue: false,
-          reason: "24/7 Continuous Rest Barrier",
+          reason: streamingReason,
           remainingMs: commitmentRemainingMs,
           lockedUntil: rule.lockedUntil,
           commitmentRemainingMs,
@@ -670,6 +745,7 @@ async function enforceBlockOnTab(tabId, targetUrl, evaluation) {
   const isReview = evaluation.isReviewDue ? "1" : "0";
   const isPermanent = evaluation.isPermanentShield ? "1" : "0";
   const ruleId = evaluation.rule ? evaluation.rule.id : "";
+  const ruleCategory = evaluation.isPermanentShield ? "adult" : ((evaluation.rule && evaluation.rule.category) || "custom");
   const lockedUntil = evaluation.lockedUntil || 0;
   const commitmentRemainingMs = evaluation.commitmentRemainingMs || 0;
 
@@ -681,6 +757,7 @@ async function enforceBlockOnTab(tabId, targetUrl, evaluation) {
     `&review=${isReview}` +
     `&permanent=${isPermanent}` +
     `&ruleId=${encodeURIComponent(ruleId)}` +
+    `&category=${encodeURIComponent(ruleCategory)}` +
     `&lockedUntil=${lockedUntil}` +
     `&commitmentRemaining=${commitmentRemainingMs}`
   );
@@ -728,9 +805,9 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
   }
 });
 
-// Layer 3: Autonomous Periodic Watcher
+// Layer 3: Autonomous Periodic Watcher & Exact Bracket Expiration
 chrome.alarms.onAlarm.addListener(async (alarm) => {
-  if (alarm.name === "autonomousCheck") {
+  if (alarm.name === "autonomousCheck" || alarm.name === "streamingBracketExpire") {
     await sweepOpenTabs();
   }
 });
@@ -770,11 +847,56 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       if (request.action === "GET_STATE") {
         const state = await chrome.storage.local.get(null);
         const incognitoAllowed = await checkIncognitoAllowed();
+        const bracketStatus = getStreamingBracketStatus(state.streamingBracket);
         sendResponse({
           status: "success",
           state,
           incognitoAllowed,
+          bracketStatus,
           catalogCount: SOCIAL_CONSUMPTION_CATALOG.length
+        });
+      }
+
+      else if (request.action === "START_STREAMING_BRACKET") {
+        const state = await chrome.storage.local.get(["streamingBracket", "focusLock"]);
+        const nowMs = Date.now();
+        if (state.focusLock && state.focusLock.active && nowMs < state.focusLock.expiresAt) {
+          sendResponse({
+            status: "error",
+            message: "☕ Focus Sprint is active. Finish your deep work session before starting your 2-hour streaming bracket."
+          });
+          return;
+        }
+
+        const currentStatus = getStreamingBracketStatus(state.streamingBracket, nowMs);
+        if (currentStatus.state === "active") {
+          sendResponse({
+            status: "error",
+            message: "🎬 Your 2-hour anime & streaming bracket is already running!",
+            bracketStatus: currentStatus
+          });
+          return;
+        }
+        if (currentStatus.state === "exhausted") {
+          sendResponse({
+            status: "error",
+            message: `⛔ Today's 2-hour bracket has already ended. It refreshes tomorrow (${formatRemainingTime(currentStatus.resetInMs)} left).`,
+            bracketStatus: currentStatus
+          });
+          return;
+        }
+
+        const streamingBracket = {
+          lastUsedDate: currentStatus.today,
+          startedAt: nowMs,
+          expiresAt: nowMs + TWO_HOURS_MS
+        };
+        await chrome.storage.local.set({ streamingBracket });
+        chrome.alarms.create("streamingBracketExpire", { when: streamingBracket.expiresAt });
+        sendResponse({
+          status: "success",
+          streamingBracket,
+          bracketStatus: getStreamingBracketStatus(streamingBracket, nowMs)
         });
       }
 
@@ -1133,6 +1255,16 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
     const newLogs = Array.isArray(changes.reflectionLogs.newValue) ? changes.reflectionLogs.newValue : [];
     if (newLogs.length < oldLogs.length) {
       restorePayload.reflectionLogs = oldLogs;
+      needsRestore = true;
+    }
+  }
+
+  if (changes.streamingBracket && changes.streamingBracket.oldValue) {
+    const oldB = changes.streamingBracket.oldValue;
+    const newB = changes.streamingBracket.newValue || {};
+    const today = getLocalDateKey();
+    if (oldB.lastUsedDate === today && (newB.lastUsedDate !== today || (newB.expiresAt || 0) > (oldB.expiresAt || 0))) {
+      restorePayload.streamingBracket = oldB;
       needsRestore = true;
     }
   }
