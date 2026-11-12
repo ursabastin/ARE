@@ -2,7 +2,7 @@
 // ARE (Autonomous Restrictor Engine) v2.2 - Cozy 3-Day Anti-Escapism, Entertainment & NSFW Shield
 
 const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000; // 72 Hours Mandatory Lock
-const CATALOG_VERSION = 3;
+const CATALOG_VERSION = 4;
 
 // Built-in 24/7 Adult & NSFW Heuristic Guard (Works across Normal + Incognito)
 const ADULT_TLDS = ['.xxx', '.porn', '.sex', '.adult', '.sexy'];
@@ -168,7 +168,6 @@ const SOCIAL_CONSUMPTION_CATALOG = [
   { id: "rule_espncricinfo", name: "ESPNcricinfo", pattern: "espncricinfo.com", category: "comics", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Sports distraction paused." },
 
   // --- 5. Visual, Pins & Short-Form Video Dopamine Traps ---
-  { id: "rule_yt_shorts", name: "YouTube Shorts (24/7)", pattern: "youtube.com/shorts", category: "video", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Short-form loops are permanently locked 24/7. Watch intentional long videos or step away." },
   { id: "rule_fb_reel", name: "Facebook Reels (24/7)", pattern: "facebook.com/reel", category: "video", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Short-form loops are locked 24/7." },
   { id: "rule_fb_watch", name: "Facebook Watch (24/7)", pattern: "facebook.com/watch", category: "video", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Video feed locked 24/7." },
   { id: "rule_ig_reels", name: "Instagram Reels (24/7)", pattern: "instagram.com/reels", category: "video", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Reels loop locked 24/7." },
@@ -176,8 +175,6 @@ const SOCIAL_CONSUMPTION_CATALOG = [
   { id: "rule_pinit", name: "Pinterest Shortlink", pattern: "pin.it", category: "video", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Pinterest redirect intercepted under your 3-day lock." },
   { id: "rule_tiktok", name: "TikTok", pattern: "tiktok.com", category: "video", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Short-form dopamine loop blocked 24/7. Guard your attention span." },
   { id: "rule_snapchat", name: "Snapchat Web", pattern: "snapchat.com", category: "video", defaultMode: "schedule", customMessage: "Snaps and streaks can wait. Stay present." },
-  { id: "rule_youtube", name: "YouTube (Night Curfew)", pattern: "youtube.com", category: "video", defaultMode: "schedule", customMessage: "Avoid the autoplay rabbit hole. Rest your eyes." },
-  { id: "rule_youtu_be", name: "YouTube Shortlink", pattern: "youtu.be", category: "video", defaultMode: "schedule", customMessage: "Video link paused under your focus commitment." },
   { id: "rule_vimeo", name: "Vimeo", pattern: "vimeo.com", category: "video", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Video consumption barrier active." },
   { id: "rule_dailymotion", name: "Dailymotion", pattern: "dailymotion.com", category: "video", defaultMode: "always", forceAlwaysOnUpgrade: true, customMessage: "Video consumption barrier active." },
 
@@ -339,6 +336,22 @@ async function initializeAndMigrateStorage() {
 
     const currentCatalogVersion = data.catalogVersion || 1;
     if (currentCatalogVersion < CATALOG_VERSION) {
+      if (currentCatalogVersion < 4) {
+        // Unblock YouTube and YouTube Studio across existing installations (creator channel workflow).
+        const youtubePatterns = new Set([
+          "youtube.com",
+          "youtu.be",
+          "youtube.com/shorts",
+          "studio.youtube.com",
+          "m.youtube.com",
+          "music.youtube.com"
+        ]);
+        rules = rules.filter(r => {
+          const normalized = (r.pattern || "").toLowerCase().replace(/^www\./, '').trim();
+          return !youtubePatterns.has(normalized);
+        });
+      }
+
       const alwaysCount = rules.filter(r => r.mode === 'always').length;
       const scheduleRule = rules.find(r => r.mode === 'schedule');
       const allAlways = (rules.length > 0 && alwaysCount === rules.length);

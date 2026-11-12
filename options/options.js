@@ -517,7 +517,6 @@ function setupBentoPresets() {
       { name: "Twitch", pattern: "twitch.tv", category: "streaming", mode: "always" },
       { name: "TikTok", pattern: "tiktok.com", category: "video", mode: "always" },
       { name: "Instagram", pattern: "instagram.com", category: "social", mode: "schedule", start: "09:00", end: "18:00" },
-      { name: "YouTube & Shorts", pattern: "youtube.com", category: "video", mode: "schedule", start: "09:00", end: "18:00" },
       { name: "Pinterest (All Regions)", pattern: "pinterest.*", category: "video", mode: "schedule", start: "09:00", end: "18:00" },
       { name: "Reddit", pattern: "reddit.com", category: "forums", mode: "schedule", start: "09:00", end: "18:00" },
       { name: "Discord Web", pattern: "discord.com", category: "messaging", mode: "schedule", start: "09:00", end: "18:00" },

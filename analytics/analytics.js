@@ -108,7 +108,7 @@ function buildDemoPayload() {
         },
         domainCounts: {
           "instagram.com": 38,
-          "youtube.com/shorts": 27,
+          "tiktok.com": 27,
           "reddit.com": 18,
           "pinterest.*": 15,
           "netflix.com": 14,

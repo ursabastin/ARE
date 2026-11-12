@@ -133,7 +133,7 @@ All submissions are permanently recorded in the **Reflection & Intent Audit Vaul
     * **Streaming, Anime & Movies:** Netflix, Prime Video, Hotstar, Disney+, JioCinema, SonyLIV, ZEE5, Hulu, Max, Crunchyroll, Twitch, Kick, HiAnime, AniWatch, 9anime, FMovies, 123Movies, IMDb.
     * **Browser Games & Gaming Portals:** Poki, CrazyGames, Coolmath Games, Miniclip, Y8, Friv, Kongregate, Krunker, Slither, Agar, Roblox, Steam, Epic Games.
     * **Comics, Manga & Entertainment Feeds:** WEBTOON, MangaDex, Asura, Wattpad, AO3, Bored Panda, BuzzFeed, Cricbuzz, ESPNcricinfo, 9GAG, Imgur, 4chan.
-    * **Short-Form Loops (24/7 Path Blocking):** `youtube.com/shorts`, `instagram.com/reels`, `facebook.com/reel`, `facebook.com/watch`, `tiktok.com`, `pinterest.*`, `pin.it`.
+    * **Short-Form Loops (24/7 Path Blocking):** `instagram.com/reels`, `facebook.com/reel`, `facebook.com/watch`, `tiktok.com`, `pinterest.*`, `pin.it`. (YouTube is intentionally omitted so creators can manage channels and upload work unhindered.)
 * **🌐 Full Anti-Escapism Social & Chat Shield:**
   * **Social Feeds:** `instagram.com`, `facebook.com`, `fb.com`, `threads.net`, `threads.com`, `x.com`, `twitter.com`, `bsky.app`, `mastodon.social`, `linkedin.com`, `tumblr.com`
   * **Messaging & Communities:** `web.whatsapp.com`, `wa.me`, `telegram.org` (`web.telegram.org`), `t.me`, `messenger.com`, `discord.com`, `discord.gg`
